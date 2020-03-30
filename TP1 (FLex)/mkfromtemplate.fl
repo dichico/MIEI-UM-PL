@@ -1,0 +1,25 @@
+%option noyywrap
+
+/* Includes e Variáveis */
+%{
+
+%}
+
+/* Processamento dos Dados */
+%%
+
+%%
+
+/* Função Main */
+int main(int argc, char* argv[]){
+
+    if(argc == 3){
+        yylex();
+    }
+    else {
+        printf("mkfromtemplate name template");
+        return 1;
+    }
+
+    return 0;
+}
