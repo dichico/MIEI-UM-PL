@@ -4,14 +4,18 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 %{
     #include <string.h>
     #include <stdlib.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+
     char *diretoriaAtual;
     char *email;
     char *autor;
+    char *nome;
 %}
 
 %option noyywrap
 
-/* Definir as Tags usadas */
+/* Definir as SC usadas */
 %x META TREE
 
 /* Processamento dos Dados */
@@ -31,10 +35,16 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
     }
     "author: "[^\n]+ {
         autor = strdup(yytext+8);
+        BEGIN INITIAL;
     }
 }
 
-
+<TREE>{
+    ^\{\%[a-z]+\%\}\/ {
+        int status;
+        status = mkdir(nome, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+}
 
 %%
 
@@ -43,14 +53,19 @@ int main(int argc, char* argv[]){
 
     if(argc == 3){
 
-        email = autor = "";
+        email = autor = diretoriaAtual = "";
+
+        nome = strdup(argv[1]);
         
         yyin = fopen(argv[2], "r");
 
         yylex();
 
+        printf("Nome: %s\n", nome);
         printf("Email: %s\n", email);
         printf("Author: %s\n", autor);
+        printf("Diretoria: %s\n", diretoriaAtual);
+
     }
     else {
         printf("mkfromtemplate name template");
