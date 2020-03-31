@@ -1,12 +1,31 @@
-%option noyywrap
+Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-z]|[A-Z]|[0-9]|.|\ )
 
 /* Includes e Variáveis */
 %{
-
+    #include <string.h>
+    #include <stdlib.h>
+    char *diretoriaAtual;
+    char *email;
+    char *autor;
 %}
+
+%option noyywrap
+
+/* Definir as Tags usadas */
+%x META APANHAR
 
 /* Processamento dos Dados */
 %%
+
+<APANHAR>[^\n]+ {
+    email = strdup(yytext);
+}
+
+<META>{
+    "email: " {
+        BEGIN APANHAR;
+    }
+}
 
 %%
 
@@ -14,7 +33,16 @@
 int main(int argc, char* argv[]){
 
     if(argc == 3){
+
+        email = autor = "";
+        
+        yyin = fopen(argv[2], "r");
+        
+        BEGIN META;
+
         yylex();
+
+        printf("Email: %s\n", email);
     }
     else {
         printf("mkfromtemplate name template");
