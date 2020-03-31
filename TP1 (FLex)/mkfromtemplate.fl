@@ -1,5 +1,3 @@
-Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-z]|[A-Z]|[0-9]|.|\ )
-
 /* Includes e Variáveis */
 %{
     #include <string.h>
@@ -16,7 +14,7 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 %option noyywrap
 
 /* Definir as SC usadas */
-%x META TREE
+%x META TREE FICHEIRO
 
 /* Processamento dos Dados */
 %%
@@ -46,6 +44,21 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
     }
 }
 
+"=== "[a-zA-Z]+ {
+    BEGIN FICHEIRO;
+}
+
+"{%name%}"  {
+    printf("%s", nome);
+}
+
+"{%author%}" {
+    printf("%s", autor);
+}
+
+"{%email%}" {
+    printf("%s", email);
+}
 %%
 
 /* Função Main */
