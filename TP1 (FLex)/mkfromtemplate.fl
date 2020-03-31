@@ -12,20 +12,29 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 %option noyywrap
 
 /* Definir as Tags usadas */
-%x META APANHAR
+%x META TREE
 
 /* Processamento dos Dados */
 %%
 
-<APANHAR>[^\n]+ {
-    email = strdup(yytext);
+"=== meta"\n {
+    BEGIN META;
+}
+
+"=== tree"\n {
+    BEGIN TREE;
 }
 
 <META>{
-    "email: " {
-        BEGIN APANHAR;
+    "email: "[^\n]+ {
+        email = strdup(yytext+7);
+    }
+    "author: "[^\n]+ {
+        autor = strdup(yytext+8);
     }
 }
+
+
 
 %%
 
@@ -37,12 +46,11 @@ int main(int argc, char* argv[]){
         email = autor = "";
         
         yyin = fopen(argv[2], "r");
-        
-        BEGIN META;
 
         yylex();
 
         printf("Email: %s\n", email);
+        printf("Author: %s\n", autor);
     }
     else {
         printf("mkfromtemplate name template");
