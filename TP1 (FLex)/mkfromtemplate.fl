@@ -1,12 +1,54 @@
 %option noyywrap
+Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-z]|[A-Z]|[0-9]|.|\ )
 
 /* Includes e Variáveis */
 %{
-
+    char *diretoriaAtual;
+    char *email;
+    char *autor;
 %}
+
+/* Definir as Tags usadas */
+%x META EMAIL AUTHOR TREE
 
 /* Processamento dos Dados */
 %%
+
+<META>{
+
+    "email: " {
+        BEGIN EMAIL;
+    }
+}
+
+<EMAIL>{
+
+    .|\n {
+        printf("%s", yytext);
+        email = strdup(yytext);
+    }
+    "author: " {
+        BEGIN AUTHOR;
+    }
+}
+
+<AUTHOR>{
+
+    .|\n {
+        printf("%s", yytext);
+    }
+    "=== tree" {
+        BEGIN TREE;
+    }
+}
+
+<TREE>{
+    .|\n {
+        ;
+    }
+}
+
+<*>.|\n {;}
 
 %%
 
@@ -14,7 +56,14 @@
 int main(int argc, char* argv[]){
 
     if(argc == 3){
+        
+        yyin = fopen(argv[2], "r");
+
+        BEGIN META;
+
         yylex();
+
+        printf("Email: %s\n", email);
     }
     else {
         printf("mkfromtemplate name template");
