@@ -66,6 +66,8 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 
 <FICHEIRO>{
 
+    
+
     [a-zA-Z%{}\.]+ {
         printf("testeNomeFicheiro\n");
         nameFile = strdup(yytext);
