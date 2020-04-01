@@ -6,23 +6,31 @@
     #include <sys/types.h>
     #include <sys/stat.h>
 
-    char *nome;
+    char *name;
     char *email;
-    char *autor;
+    char *author;
 
-    FILE *ficheiro;
+    char *rootDirectory;
+    char *currentDirectory;
 %}
 
 %option noyywrap
+NAME    \{"%name%"\}
+EMAIL   \{"%email%"\}
+AUTHOR  \{"%author%"\}
 
 /* Definir as SC usadas */
-%x META SUB
+%x META TREE
 
 /* Processamento dos Dados */
 %%
 
-"=== meta"\n\n {
+"=== meta" {
     BEGIN META;
+}
+
+"=== tree" {
+    BEGIN TREE;
 }
 
 <META>{
@@ -30,26 +38,29 @@
         email = strdup(yytext+7);
     }
     "author: "[^\n]+ {
-        autor = strdup(yytext+8);
-        BEGIN SUB;
+        author = strdup(yytext+8);
+        BEGIN INITIAL;
     }
 }
 
-<SUB>{
-    \{"%name%"\}  {
-        fprintf(ficheiro, "%s", nome);
-    }
+<TREE>{
+    ^\{"%name%"\}\/ {
+        rootDirectory = strdup(name);
+        strcat(rootDirectory, "/");
 
-    \{"%author%"\} {
-        fprintf(ficheiro, "%s", autor);
+        int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
+    ^[a-z]+\/ {
+        rootDirectory = strdup(yytext);
+        strcat(rootDirectory, "/");
 
-    \{"%email%"\} {
-        fprintf(ficheiro, "%s", email);
+        int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
+    ^\-[ ][a-z]+\/ {
+        currentDirectory = strdup(rootDirectory);
+        strcat(currentDirectory, yytext+2);
 
-    . {
-        fprintf(ficheiro, "%s", yytext);
+        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
 }
 
@@ -60,14 +71,14 @@ int main(int argc, char* argv[]){
 
     if(argc == 3){
 
-        email = autor = "";
-
-        nome = strdup(argv[1]);
+        rootDirectory = currentDirectory = "";
+        email = author = "";
+        name = strdup(argv[1]);
         
         yyin = fopen(argv[2], "r");
-        ficheiro = fopen("ficheiroLimpo", "w");
 
         yylex();
+        printf("%s",currentDirectory);
     }
     else {
         printf("mkfromtemplate name template");
