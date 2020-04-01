@@ -9,6 +9,9 @@ author: J.João
 - doc/
 -- {%name%}.md
 - exemplo/
+-- doc/
+--- exemplo/
+nova/
 - Makefile
 
 === Makefile

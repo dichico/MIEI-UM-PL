@@ -19,7 +19,7 @@ NAME    \{"%name%"\}
 EMAIL   \{"%email%"\}
 AUTHOR  \{"%author%"\}
 
-/* Definir as SC usadas */
+/* Definir as Start Conditions usadas */
 %x META TREE
 
 /* Processamento dos Dados */
@@ -45,19 +45,23 @@ AUTHOR  \{"%author%"\}
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        rootDirectory = strdup(name);
+        rootDirectory = currentDirectory = strdup(name);
         strcat(rootDirectory, "/");
 
         int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
     ^[a-z]+\/ {
-        rootDirectory = strdup(yytext);
-        strcat(rootDirectory, "/");
+        rootDirectory = currentDirectory = strdup(yytext);
 
         int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
     ^\-[ ][a-z]+\/ {
         currentDirectory = strdup(rootDirectory);
+        strcat(currentDirectory, yytext+2);
+
+        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+    ^\--+[ ][a-z]+\/ {
         strcat(currentDirectory, yytext+2);
 
         int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -71,14 +75,12 @@ int main(int argc, char* argv[]){
 
     if(argc == 3){
 
-        rootDirectory = currentDirectory = "";
-        email = author = "";
+        rootDirectory = currentDirectory = email = author = "";
         name = strdup(argv[1]);
         
         yyin = fopen(argv[2], "r");
 
         yylex();
-        printf("%s",currentDirectory);
     }
     else {
         printf("mkfromtemplate name template");
