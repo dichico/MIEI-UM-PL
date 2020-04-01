@@ -10,11 +10,11 @@ author: J.João
 -- {%name%}.md
 - exemplo/
 -- doc/
---- exemplo/
+--- exemplo.md
 --- lol/
 -- xd/
-
 - Makefile
+pastaNova/
 
 === Makefile
 

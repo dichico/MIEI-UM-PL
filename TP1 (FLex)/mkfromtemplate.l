@@ -15,10 +15,10 @@
 
 %option noyywrap
 
-Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-z]|[A-Z]|[0-9]|\ )
+Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-zA-Z]|[0-9]|\ )
 
 /* Definir as Start Conditions usadas */
-%x META TREE FILE CONTENT
+%x META TREE FICHEIRO CONTENT
 
 /* Processamento dos Dados */
 %%
@@ -32,7 +32,7 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 }
 
 \=+ {
-    BEGIN FILE;
+    BEGIN FICHEIRO;
 }
 
 <META>{
@@ -47,29 +47,33 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        printf("pastaRaiz");
+        // int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    ^{Portugues}+\/ {
-        int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    ^[a-zA-Z]+\/ {
+        printf("pastaRaiz sem name");
+        // int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    ^\-+{Portugues}+\/ {
-        int lineNumber = countLines(yytext);
-        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    
+    ^\-+\ [a-zA-Z]+(\.[a-z]+\n|\n) {
+        printf("Ficheiro sem name\n");
+        // int lineNumber = countLines(yytext);
     }
-    ^\-+{Portugues}+\.[a-z]\n {
-        int lineNumber = countLines(yytext);
+
+    ^\-+\ [a-zA-Z]+\/ {
+        printf("Pasta");
+        // int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
+    \n\n    {BEGIN INITIAL;}
+    
 }
 
-<FILE>{
-    .+\n {
+<FICHEIRO>{
+
+    [a-zA-Z]+\n {
+        printf("testeNomeFicheiro\n");
         nameFile = strdup(yytext);
-        BEGIN CONTENT;
     }
-}
-
-<CONTENT>{
-    [a]
 }
 
 %%
