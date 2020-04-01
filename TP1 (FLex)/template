@@ -11,7 +11,9 @@ author: J.João
 - exemplo/
 -- doc/
 --- exemplo/
-nova/
+--- lol/
+-- xd/
+
 - Makefile
 
 === Makefile

@@ -10,17 +10,15 @@
     char *email;
     char *author;
 
-    char *rootDirectory;
-    char *currentDirectory;
+    char *nameFile;
 %}
 
 %option noyywrap
-NAME    \{"%name%"\}
-EMAIL   \{"%email%"\}
-AUTHOR  \{"%author%"\}
+
+Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[a-z]|[A-Z]|[0-9]|\ )
 
 /* Definir as Start Conditions usadas */
-%x META TREE
+%x META TREE FILE CONTENT
 
 /* Processamento dos Dados */
 %%
@@ -31,6 +29,10 @@ AUTHOR  \{"%author%"\}
 
 "=== tree" {
     BEGIN TREE;
+}
+
+\=+ {
+    BEGIN FILE;
 }
 
 <META>{
@@ -45,27 +47,29 @@ AUTHOR  \{"%author%"\}
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        rootDirectory = currentDirectory = strdup(name);
-        strcat(rootDirectory, "/");
-
         int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    ^[a-z]+\/ {
-        rootDirectory = currentDirectory = strdup(yytext);
-
+    ^{Portugues}+\/ {
         int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    ^\-[ ][a-z]+\/ {
-        currentDirectory = strdup(rootDirectory);
-        strcat(currentDirectory, yytext+2);
-
+    ^\-+{Portugues}+\/ {
+        int lineNumber = countLines(yytext);
         int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    ^\--+[ ][a-z]+\/ {
-        strcat(currentDirectory, yytext+2);
-
-        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    ^\-+{Portugues}+\.[a-z]\n {
+        int lineNumber = countLines(yytext);
     }
+}
+
+<FILE>{
+    .+\n {
+        nameFile = strdup(yytext);
+        BEGIN CONTENT;
+    }
+}
+
+<CONTENT>{
+    [a]
 }
 
 %%
@@ -75,7 +79,7 @@ int main(int argc, char* argv[]){
 
     if(argc == 3){
 
-        rootDirectory = currentDirectory = email = author = "";
+        email = author = "";
         name = strdup(argv[1]);
         
         yyin = fopen(argv[2], "r");
