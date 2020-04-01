@@ -31,10 +31,6 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
     BEGIN TREE;
 }
 
-\=+ {
-    BEGIN FICHEIRO;
-}
-
 <META>{
     "email: "[^\n]+ {
         email = strdup(yytext+7);
@@ -64,16 +60,25 @@ Portugues   (Á|À|Â|Ã|á|à|â|ã|É|Ê|é|ê|Í|í|Ó|Ô|ó|õ|ô|Ú|ú|ç|[
         printf("Pasta");
         // int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    \n\n    {BEGIN INITIAL;}
+    ===\     {BEGIN FICHEIRO;}
     
 }
 
 <FICHEIRO>{
 
-    [a-zA-Z]+\n {
+    [a-zA-Z%{}\.]+ {
         printf("testeNomeFicheiro\n");
         nameFile = strdup(yytext);
     }
+    \n  {BEGIN CONTENT;}
+    
+}
+
+<CONTENT>{
+    [^=]+ {
+        printf("conteúdo\n");
+    } 
+    ===\    {BEGIN FICHEIRO;}
 }
 
 %%
