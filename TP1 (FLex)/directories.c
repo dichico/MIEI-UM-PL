@@ -65,6 +65,7 @@ Directories* insertEnd(Directories *list, int lN, int fD, char *n, char *d){
 }
 
 void createDirectory(Directories *list){
+    
     char *currentDirectory = lastDirectory(list);
     int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }

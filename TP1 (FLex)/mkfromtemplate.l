@@ -79,7 +79,7 @@
         createDirectory(directories);
     }
 
-    ===\     {BEGIN FICHEIRO;}
+    ===[ ] {BEGIN FICHEIRO;}
     
 }
 
@@ -116,10 +116,10 @@
     .|\n {
         fwrite(yytext, strlen(yytext), 1, currentFile);
     }
-    ===\     {
-
+    ===[ ] {
         fclose(currentFile);
         currentDirectory = currentNameFile = "";
+        
         BEGIN FICHEIRO;
     }
 }

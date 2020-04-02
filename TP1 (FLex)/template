@@ -10,7 +10,9 @@ author: J.João
 -- {%name%}.md
 - exemplo/
 -- doc/
+--- novpasta/
 --- exemplo.md
+--- doc/
 --- lol/
 -- xd/
 - Makefile
