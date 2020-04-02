@@ -66,7 +66,8 @@
     }
 
     ^\-+\ \{"%name%"\}\.[a-z]+ {
-        printf("LOL %s\n", yytext-3);        
+        char *extension
+        directories = insertDirectory(directories, isFile, strdup(yytext));
     }
 
     ^\-+\ [a-zA-Z]+\/ {
