@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "directories.h"
 
 int countLines(char *lineName){
@@ -59,6 +61,18 @@ Directories* insertEnd(Directories *list, int lN, int fD, char *d){
     current -> next = newList;
 
     return list;
+}
+
+void createDirectory(Directories *list){
+    char *currentDirectory = lastDirectory(list);
+    int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+}
+
+void createFile(Directories *list){
+
+    char *currentDirectory = lastDirectory(list);
+    FILE *newFile = fopen(currentDirectory, "w");
+    fclose(newFile);
 }
 
 Directories* insertDirectory(Directories *list, int fD, char *name, char *rootName){

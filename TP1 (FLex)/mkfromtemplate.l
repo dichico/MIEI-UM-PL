@@ -44,46 +44,36 @@
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        char *nameFile = strdup(name);
-        strcat(nameFile, "/");
-        directories = insertDirectory(directories, isDirectory, strdup(nameFile), NULL);
+        char *directory = strdup(name);
+        strcat(directory, "/");
 
-        char *currentDirectory = lastDirectory(directories);
-        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        directories = insertDirectory(directories, isDirectory, strdup(directory), NULL);
+        createDirectory(directories);
     }
 
     ^[a-zA-Z]+\/ {
         directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
-        
-        char *currentDirectory = lastDirectory(directories);
-        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        createDirectory(directories);
     }
     
     ^\-+\ [a-zA-Z]+\.[a-z]+ {
         directories = insertDirectory(directories, isFile, strdup(yytext), NULL);
-
-        char *currentDirectory = lastDirectory(directories);
-        FILE *newFile = fopen(currentDirectory, "w");
-        fclose(newFile);
+        createFile(directories);
     }
 
     ^\-+\ [a-zA-Z]+ {
         directories = insertDirectory(directories, isFile, strdup(yytext), NULL);
-
-        char *currentDirectory = lastDirectory(directories);
-        FILE *newFile = fopen(currentDirectory, "w");
-        fclose(newFile);
+        createFile(directories);
     }
 
     ^\-+\ \{"%name%"\}\.[a-z]+ {
         directories = insertDirectory(directories, isFile, strdup(yytext), strdup(name));
+        createFile(directories);
     }
 
     ^\-+\ [a-zA-Z]+\/ {
         directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
-        
-        char *currentDirectory = lastDirectory(directories);
-        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        createDirectory(directories);
     }
 
     ===\     {BEGIN FICHEIRO;}
