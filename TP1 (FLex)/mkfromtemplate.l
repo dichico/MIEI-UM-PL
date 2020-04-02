@@ -10,7 +10,10 @@
     char *name;
     char *email;
     char *author;
-    char *nameFile;
+
+    FILE *currentFile;
+    char *currentDirectory;
+    char *currentNameFile;
 
     Directories *directories; 
 %}
@@ -81,20 +84,44 @@
 }
 
 <FICHEIRO>{
+    \{"%name%"\}\.[a-z]+ {
+        char *nameFile = strdup(name);
+        char *extension = strchr(yytext, '.');
+        strcat(nameFile, extension);
+
+        currentNameFile = nameFile;
+    }
     [a-zA-Z%{}\.]+ {
-        //printf("testeNomeFicheiro\n");
-        nameFile = strdup(yytext);
+        currentNameFile = strdup(yytext);
     }
 
-    \n  {BEGIN CONTENT;}
+    \n {
+        BEGIN CONTENT;
+        currentDirectory = getDirectory(directories, strdup(currentNameFile));
+        currentFile = fopen(currentDirectory, "a+");
+    }
     
 }
 
 <CONTENT>{
-    [^=]+ {
-        //printf("conteúdo\n");
-    } 
-    ===\    {BEGIN FICHEIRO;}
+    \{"%name%"\} {
+        fwrite(name, strlen(name), 1, currentFile);
+    }
+    \{"%email%"\} {
+        fwrite(email, strlen(email), 1, currentFile);
+    }
+    \{"%author%"\} {
+        fwrite(author, strlen(author), 1, currentFile);
+    }
+    .|\n {
+        fwrite(yytext, strlen(yytext), 1, currentFile);
+    }
+    ===\     {
+
+        fclose(currentFile);
+        currentDirectory = currentNameFile = "";
+        BEGIN FICHEIRO;
+    }
 }
 
 %%
@@ -114,9 +141,6 @@ int main(int argc, char* argv[]){
         
         // FLex Process
         yylex();
-
-        printDirectories(directories);
-
     }   
     else {
         printf("mkfromtemplate name template");

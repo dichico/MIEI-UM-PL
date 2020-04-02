@@ -14,7 +14,7 @@ int countLines(char *lineName){
     return result;
 }
 
-char* removeLines(char *name, char *rootName){
+char* cleanName(char *name, char *rootName){
 
     int i, j;
 
@@ -45,7 +45,7 @@ Directories* init(){
     return list; 
 }
 
-Directories* insertEnd(Directories *list, int lN, int fD, char *d){
+Directories* insertEnd(Directories *list, int lN, int fD, char *n, char *d){
 
     Directories *newList = malloc(sizeof(struct directories));
     Directories *current = list;
@@ -55,6 +55,7 @@ Directories* insertEnd(Directories *list, int lN, int fD, char *d){
 
     newList -> lineNumber = lN;
     newList -> fileOrDirectory = fD;
+    newList -> name = n;
     newList -> directory = d;
     newList -> next = NULL;
 
@@ -75,10 +76,21 @@ void createFile(Directories *list){
     fclose(newFile);
 }
 
+char* getDirectory(Directories *list, char* nameFile){
+
+    Directories *current = list;
+
+    while(current != NULL && strcmp(current -> name, nameFile)){
+        current = current -> next;
+    }
+
+    return current -> directory;
+}
+
 Directories* insertDirectory(Directories *list, int fD, char *name, char *rootName){
 
     int numberLines = countLines(name);
-    char *cleanName = removeLines(name, rootName);
+    char *newName = cleanName(name, rootName);
 
     Directories *newList = malloc(sizeof(struct directories));
 
@@ -86,7 +98,8 @@ Directories* insertDirectory(Directories *list, int fD, char *name, char *rootNa
     if(list == NULL) {
         newList -> lineNumber = numberLines;
         newList -> fileOrDirectory = fD;
-        newList -> directory = cleanName;
+        newList -> name = newName;
+        newList -> directory = newName;
         newList -> next = NULL;
         list = newList;
     }
@@ -96,7 +109,7 @@ Directories* insertDirectory(Directories *list, int fD, char *name, char *rootNa
         int lineLimit = numberLines - 1;
 
         if(numberLines == 0) 
-            list = insertEnd(list, numberLines, fD, cleanName);
+            list = insertEnd(list, numberLines, fD, newName, newName);
 
         else{
             Directories *current = list;
@@ -104,11 +117,11 @@ Directories* insertDirectory(Directories *list, int fD, char *name, char *rootNa
             while(current -> next != NULL && (current -> next -> lineNumber) <= lineLimit) 
                 current = current -> next;
 
-            char *fullName;
-            fullName = strdup(current -> directory);
-            strcat(fullName, strdup(cleanName));
+            char *directory;
+            directory = strdup(current -> directory);
+            strcat(directory, strdup(newName));
 
-            list = insertEnd(list, numberLines, fD, fullName);
+            list = insertEnd(list, numberLines, fD, newName, directory);
         }
     }
 
@@ -128,8 +141,12 @@ char* lastDirectory(Directories *list){
 void printDirectories(Directories *list){
 
 	while(list != NULL){
-		printf("Name: %s\n", list -> directory);
-        printf("Line Number: %d\n", list -> lineNumber);
+		printf("Name: %s\n", list -> name);
+
+        if(list -> fileOrDirectory == 1) printf("File\n");
+        else printf("Diretory\n");
+        
+        printf("Directory: %s\n\n", list -> directory);
 		list = list -> next;
 	}
 }

@@ -38,7 +38,7 @@ install: {%name%}
 
 Comments and bug reports to {%author%}, {%email%}.
 
-=== {%name%}.fl 
+=== {%name%}.fl
 %option noyywrap yylineno 
 %%
 
