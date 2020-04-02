@@ -3,4 +3,4 @@ mkfromtemplate: mkfromtemplate.l
 	cc -o mkfromtemplate lex.yy.c directories.c
 
 clean:
-	rm -rf lex.yy.c mkfromtemplate diogo ficheiroLimpo
+	rm -rf lex.yy.c mkfromtemplate diogo ficheiroLimpo pastaNova

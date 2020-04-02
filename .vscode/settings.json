@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.fl": "lex",
+        "stdlib.h": "c"
+    }
+}

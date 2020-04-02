@@ -44,22 +44,36 @@
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        directories = insertDirectory(directories, isDirectory, name);
-        // int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        directories = insertDirectory(directories, isDirectory, strcat(name,"/"));
+
+        char *currentDirectory = lastDirectory(directories);
+        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
 
     ^[a-zA-Z]+\/ {
-        //printf("pastaRaiz sem name");
-        // int status = mkdir(rootDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        directories = insertDirectory(directories, isDirectory, strdup(yytext));
+        
+        char *currentDirectory = lastDirectory(directories);
+        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
     
-    ^\-+\ [a-zA-Z]+(\.[a-z]+\n|\n) {
-        //printf("Ficheiro sem name\n");
+    ^\-+\ [a-zA-Z]+\.[a-z]+ {
+        directories = insertDirectory(directories, isFile, strdup(yytext));
+
+        char *currentDirectory = lastDirectory(directories);
+        FILE *newFile = fopen(currentDirectory, "w");
+        fclose(newFile);
+    }
+
+    ^\-+\ \{"%name%"\}\.[a-z]+ {
+        printf("LOL %s\n", yytext-3);        
     }
 
     ^\-+\ [a-zA-Z]+\/ {
-        //printf("Pasta");
-        // int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        directories = insertDirectory(directories, isDirectory, strdup(yytext));
+        
+        char *currentDirectory = lastDirectory(directories);
+        int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
 
     ===\     {BEGIN FICHEIRO;}
@@ -90,18 +104,20 @@ int main(int argc, char* argv[]){
 
     if(argc == 3){
 
-        // Atribuição dos valores às Variáveis Globais
+        // Global Variables Values
         email = author = "";
         name = strdup(argv[1]);
         directories = init();
 
-        // Abrir o template
+        // Open template file
         yyin = fopen(argv[2], "r");
         
-        // Iniciar o processo do FLex
+        // FLex Process
         yylex();
 
-    }
+        printDirectories(directories);
+
+    }   
     else {
         printf("mkfromtemplate name template");
         return 1;
