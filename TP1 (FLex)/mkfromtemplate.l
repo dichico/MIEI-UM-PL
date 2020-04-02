@@ -44,21 +44,31 @@
 
 <TREE>{
     ^\{"%name%"\}\/ {
-        directories = insertDirectory(directories, isDirectory, strcat(name,"/"));
+        char *nameFile = strdup(name);
+        strcat(nameFile, "/");
+        directories = insertDirectory(directories, isDirectory, strdup(nameFile), NULL);
 
         char *currentDirectory = lastDirectory(directories);
         int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
 
     ^[a-zA-Z]+\/ {
-        directories = insertDirectory(directories, isDirectory, strdup(yytext));
+        directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
         
         char *currentDirectory = lastDirectory(directories);
         int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
     
     ^\-+\ [a-zA-Z]+\.[a-z]+ {
-        directories = insertDirectory(directories, isFile, strdup(yytext));
+        directories = insertDirectory(directories, isFile, strdup(yytext), NULL);
+
+        char *currentDirectory = lastDirectory(directories);
+        FILE *newFile = fopen(currentDirectory, "w");
+        fclose(newFile);
+    }
+
+    ^\-+\ [a-zA-Z]+ {
+        directories = insertDirectory(directories, isFile, strdup(yytext), NULL);
 
         char *currentDirectory = lastDirectory(directories);
         FILE *newFile = fopen(currentDirectory, "w");
@@ -66,12 +76,11 @@
     }
 
     ^\-+\ \{"%name%"\}\.[a-z]+ {
-        char *extension
-        directories = insertDirectory(directories, isFile, strdup(yytext));
+        directories = insertDirectory(directories, isFile, strdup(yytext), strdup(name));
     }
 
     ^\-+\ [a-zA-Z]+\/ {
-        directories = insertDirectory(directories, isDirectory, strdup(yytext));
+        directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
         
         char *currentDirectory = lastDirectory(directories);
         int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

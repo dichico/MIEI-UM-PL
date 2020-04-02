@@ -12,10 +12,7 @@ int countLines(char *lineName){
     return result;
 }
 
-char *getExtension(char *name, char *name2){
-}
-
-char* removeLines(char *name){
+char* removeLines(char *name, char *rootName){
 
     int i, j;
 
@@ -29,8 +26,11 @@ char* removeLines(char *name){
             else i++;
         }
     }
-
-    if(name[0] == '{') printf("CERTO");
+    if(rootName != NULL && name[0] == '{'){
+        char *endName = strchr(name, '.');
+        name = strdup(rootName);
+        strcat(name, endName);
+    }
 
     return name;
 }
@@ -61,10 +61,10 @@ Directories* insertEnd(Directories *list, int lN, int fD, char *d){
     return list;
 }
 
-Directories* insertDirectory(Directories *list, int fD, char *name){
+Directories* insertDirectory(Directories *list, int fD, char *name, char *rootName){
 
     int numberLines = countLines(name);
-    char *cleanName = removeLines(name);
+    char *cleanName = removeLines(name, rootName);
 
     Directories *newList = malloc(sizeof(struct directories));
 

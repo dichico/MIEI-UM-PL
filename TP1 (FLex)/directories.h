@@ -5,17 +5,16 @@ typedef struct directories {
 
     int lineNumber; // Ir ao último (lineNumber-1)
     int fileOrDirectory;
-    char *rootDirectory;
+    char *name;
     char *directory;
     struct directories *next;
 
 } Directories;
 
 int countLines(char *lineName);
-char *getExtension(char *name, char *name2);
-char *removeLines(char *name);
+char *removeLines(char *name, char *rootName);
 Directories* init();
 Directories* insertEnd(Directories *list, int lN, int fD, char *d);
-Directories* insertDirectory(Directories* list, int fD, char *fileName);
+Directories* insertDirectory(Directories* list, int fD, char *fileName, char *rootName);
 char* lastDirectory(Directories *list);
 void printDirectories(Directories *list);
