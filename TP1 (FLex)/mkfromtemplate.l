@@ -43,6 +43,7 @@
         author = strdup(yytext+8);
         BEGIN INITIAL;
     }
+    \n {;}
 }
 
 <TREE>{
@@ -80,6 +81,8 @@
     }
 
     ===[ ] {BEGIN FICHEIRO;}
+    
+    \n  {;}
     
 }
 
