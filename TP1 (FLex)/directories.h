@@ -14,6 +14,7 @@ typedef struct directories {
 int countLines(char *lineName);
 char* removeLines(char *name, char *rootName);
 Directories* init();
+int numberIterations(Directories *list, int lineLimit);
 char* getDirectory(Directories *list, char* nameFile);
 Directories* insertEnd(Directories *list, int lN, int fD, char *n, char *d);
 void createDirectory(Directories *list);

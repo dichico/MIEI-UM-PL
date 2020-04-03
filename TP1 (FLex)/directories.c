@@ -88,6 +88,22 @@ char* getDirectory(Directories *list, char* nameFile){
     return current -> directory;
 }
 
+int numberIterations(Directories *list, int lineLimit){
+
+    int result = 0;
+    int i = 0;
+
+    Directories *current = list;
+
+    while(current){
+        if(current -> lineNumber == lineLimit) result = i;
+        i++;
+        current = current -> next;
+    }
+
+    return result;
+}
+
 Directories* insertDirectory(Directories *list, int fD, char *name, char *rootName){
 
     int numberLines = countLines(name);
@@ -115,8 +131,12 @@ Directories* insertDirectory(Directories *list, int fD, char *name, char *rootNa
         else{
             Directories *current = list;
 
-            while(current -> next != NULL && (current -> next -> lineNumber) <= lineLimit) 
+            int number = numberIterations(list, lineLimit);
+
+            while(current -> next != NULL && number != 0){
+                number--;
                 current = current -> next;
+            }
 
             char *directory;
             directory = strdup(current -> directory);
@@ -141,7 +161,7 @@ char* lastDirectory(Directories *list){
 
 void printDirectories(Directories *list){
 
-	while(list != NULL){
+	while(list){
 		printf("Name: %s\n", list -> name);
 
         if(list -> fileOrDirectory == 1) printf("File\n");
