@@ -51,12 +51,12 @@
         char *directory = strdup(name);
         strcat(directory, "/");
 
-        directories = insertDirectory(directories, isDirectory, strdup(directory), NULL);
+        directories = insertDirectory(directories, isFolder, strdup(directory), NULL);
         createDirectory(directories);
     }
 
     ^[a-zA-Z]+\/ {
-        directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
+        directories = insertDirectory(directories, isFolder, strdup(yytext), NULL);
         createDirectory(directories);
     }
     
@@ -76,7 +76,7 @@
     }
 
     ^\-+\ [a-zA-Z]+\/ {
-        directories = insertDirectory(directories, isDirectory, strdup(yytext), NULL);
+        directories = insertDirectory(directories, isFolder, strdup(yytext), NULL);
         createDirectory(directories);
     }
 
