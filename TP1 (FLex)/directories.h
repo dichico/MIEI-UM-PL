@@ -11,14 +11,21 @@ typedef struct directories {
 
 } Directories;
 
+// Auxiliar Functions: countLine, cleanName, numberIterations and inserEnd
+// Principal Function: insertDirectory
 int countLines(char *lineName);
-char* removeLines(char *name, char *rootName);
-Directories* init();
+char* cleanName(char *name, char *rootName);
 int numberIterations(Directories *list, int lineLimit);
-char* getDirectory(Directories *list, char* nameFile);
 Directories* insertEnd(Directories *list, int lN, int fileFolder, char *n, char *d);
+Directories* insertDirectory(Directories* list, int fileFolder, char *fileName, char *rootName);
+
+// Auxiliar Function: lastDirectory
+// Principal Functions: createFolder, createFile
+char* lastDirectory(Directories *list);
 void createFolder(Directories *list);
 void createFile(Directories *list);
-Directories* insertDirectory(Directories* list, int fileFolder, char *fileName, char *rootName);
-char* lastDirectory(Directories *list);
+
+// Other Functions
+Directories* init();
+char* getDirectory(Directories *list, char* nameFile);
 void printDirectories(Directories *list);
