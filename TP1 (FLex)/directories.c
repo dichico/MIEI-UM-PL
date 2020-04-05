@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include "directories.h"
 
+// Auxiliar Functions: countLine, cleanName, numberIterations and inserEnd
 int countLines(char *lineName){
 
     int result = 0;
@@ -37,12 +38,20 @@ char* cleanName(char *name, char *rootName){
     return name;
 }
 
-Directories* init(){
-    
-    Directories *list = malloc(sizeof(struct directories));
-    list = NULL;
+int numberIterations(Directories *list, int lineLimit){
 
-    return list; 
+    int result = 0;
+    int i = 0;
+
+    Directories *current = list;
+
+    while(current){
+        if(current -> lineNumber == lineLimit) result = i;
+        i++;
+        current = current -> next;
+    }
+
+    return result;
 }
 
 Directories* insertEnd(Directories *list, int lN, int fileFoler, char *n, char *d){
@@ -64,46 +73,7 @@ Directories* insertEnd(Directories *list, int lN, int fileFoler, char *n, char *
     return list;
 }
 
-void createFolder(Directories *list){
-    
-    char *currentDirectory = lastDirectory(list);
-    int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-}
-
-void createFile(Directories *list){
-
-    char *currentDirectory = lastDirectory(list);
-    FILE *newFile = fopen(currentDirectory, "w");
-    fclose(newFile);
-}
-
-char* getDirectory(Directories *list, char* nameFile){
-
-    Directories *current = list;
-
-    while(current != NULL && strcmp(current -> name, nameFile)){
-        current = current -> next;
-    }
-
-    return current -> directory;
-}
-
-int numberIterations(Directories *list, int lineLimit){
-
-    int result = 0;
-    int i = 0;
-
-    Directories *current = list;
-
-    while(current){
-        if(current -> lineNumber == lineLimit) result = i;
-        i++;
-        current = current -> next;
-    }
-
-    return result;
-}
-
+// Principal Function: insertDirectory
 Directories* insertDirectory(Directories *list, int fileFoler, char *name, char *rootName){
 
     int numberLines = countLines(name);
@@ -149,12 +119,47 @@ Directories* insertDirectory(Directories *list, int fileFoler, char *name, char 
     return list;
 }
 
+// Auxiliar Function: lastDirectory
 char* lastDirectory(Directories *list){
     
     Directories *current = list;
 
     while(current -> next != NULL)
         current = current -> next;
+
+    return current -> directory;
+}
+
+// Principal Functions: createFolder, createFile
+void createFolder(Directories *list){
+    
+    char *currentDirectory = lastDirectory(list);
+    int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+}
+
+void createFile(Directories *list){
+
+    char *currentDirectory = lastDirectory(list);
+    FILE *newFile = fopen(currentDirectory, "w");
+    fclose(newFile);
+}
+
+// Other Functions
+Directories* init(){
+    
+    Directories *list = malloc(sizeof(struct directories));
+    list = NULL;
+
+    return list; 
+}
+
+char* getDirectory(Directories *list, char* nameFile){
+
+    Directories *current = list;
+
+    while(current != NULL && strcmp(current -> name, nameFile)){
+        current = current -> next;
+    }
 
     return current -> directory;
 }

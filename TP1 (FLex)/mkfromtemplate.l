@@ -94,6 +94,7 @@
 
         currentNameFile = nameFile;
     }
+
     [a-zA-Z\.]+ {
         currentNameFile = strdup(yytext);
     }
@@ -110,15 +111,19 @@
     \{"%name%"\} {
         fwrite(name, strlen(name), 1, currentFile);
     }
+
     \{"%email%"\} {
         fwrite(email, strlen(email), 1, currentFile);
     }
+
     \{"%author%"\} {
         fwrite(author, strlen(author), 1, currentFile);
     }
+
     .|\n {
         fwrite(yytext, strlen(yytext), 1, currentFile);
     }
+    
     ===[ ] {
         fclose(currentFile);
         currentDirectory = currentNameFile = "";
