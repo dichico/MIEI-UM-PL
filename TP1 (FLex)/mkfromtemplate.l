@@ -94,7 +94,7 @@
 
         currentNameFile = nameFile;
     }
-    [a-zA-Z%{}\.]+ {
+    [a-zA-Z\.]+ {
         currentNameFile = strdup(yytext);
     }
 

@@ -51,6 +51,6 @@ def main:
 
 window.onload = function() {
                 document.getElementById("hello").addEventListener("click", function() {
-                    alert("Bem-vindo à Wikipédia!");
+                    alert("Bem-vindo ao projeto {%name%} feito por {%author%}!");
                 }, false);
 };
