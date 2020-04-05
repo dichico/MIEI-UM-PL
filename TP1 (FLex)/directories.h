@@ -17,7 +17,7 @@ Directories* init();
 int numberIterations(Directories *list, int lineLimit);
 char* getDirectory(Directories *list, char* nameFile);
 Directories* insertEnd(Directories *list, int lN, int fileFolder, char *n, char *d);
-void createDirectory(Directories *list);
+void createFolder(Directories *list);
 void createFile(Directories *list);
 Directories* insertDirectory(Directories* list, int fileFolder, char *fileName, char *rootName);
 char* lastDirectory(Directories *list);

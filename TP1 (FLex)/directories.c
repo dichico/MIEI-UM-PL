@@ -64,7 +64,7 @@ Directories* insertEnd(Directories *list, int lN, int fileFoler, char *n, char *
     return list;
 }
 
-void createDirectory(Directories *list){
+void createFolder(Directories *list){
     
     char *currentDirectory = lastDirectory(list);
     int status = mkdir(currentDirectory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

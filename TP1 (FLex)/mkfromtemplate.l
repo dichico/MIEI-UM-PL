@@ -52,12 +52,12 @@
         strcat(directory, "/");
 
         directories = insertDirectory(directories, isFolder, strdup(directory), NULL);
-        createDirectory(directories);
+        createFolder(directories);
     }
 
     ^[a-zA-Z]+\/ {
         directories = insertDirectory(directories, isFolder, strdup(yytext), NULL);
-        createDirectory(directories);
+        createFolder(directories);
     }
     
     ^\-+\ [a-zA-Z]+\.[a-z]+ {
@@ -77,7 +77,7 @@
 
     ^\-+\ [a-zA-Z]+\/ {
         directories = insertDirectory(directories, isFolder, strdup(yytext), NULL);
-        createDirectory(directories);
+        createFolder(directories);
     }
 
     ===[ ] {BEGIN FICHEIRO;}
