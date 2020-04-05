@@ -23,7 +23,7 @@
 /* Definir as Start Conditions usadas */
 %x META TREE FICHEIRO CONTENT
 
-/* Processamento dos Dados */
+/* Processamento dos Dados - ERs e SC */
 %%
 
 "=== meta" {
