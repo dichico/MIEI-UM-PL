@@ -30,7 +30,7 @@
     BEGIN META;
 }
 
-<*>"=== tree" {
+"=== tree" {
     BEGIN TREE;
 }
 
@@ -41,10 +41,9 @@
     
     "author: "[^\n]+ {
         author = strdup(yytext+8);
+        BEGIN INITIAL;
     }
     \n {;}
-
-    \#.+    {;}
 }
 
 <TREE>{
@@ -105,8 +104,6 @@
         currentDirectory = getDirectory(directories, strdup(currentNameFile));
         currentFile = fopen(currentDirectory, "a+");
     }
-
-    \   {;}
     
 }
 
