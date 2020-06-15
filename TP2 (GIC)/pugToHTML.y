@@ -11,26 +11,40 @@
     char *stringValue;
 }
 
-%type <stringValue>
+%token DECLINICIAL HEAD BODY
+%token string ERRO
+
+%type <stringValue> string Titulo Scripts ConteudoBody
+
+%%
 
 FicheiroPug     :   DECLINICIAL HEAD ConteudoHead BODY ConteudoBody
                 ;
         
-ConteudoHead    :
+ConteudoHead    :   Titulo
+                |   Titulo Scripts
                 ;
 
-ConteudoBody    :
+Titulo          :   string
+                ;
+
+Scripts         :   string
+                ;
+
+ConteudoBody    :   string
                 ;
 
 %%
 
 int main() {
+
     yyparse();
 
     return 0;
 }
 
 int yyerror() {
+    
     printf("Erro Sintático ou Léxico na linha: %d\n", yylineno);
 
     return 0;

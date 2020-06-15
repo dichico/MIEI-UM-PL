@@ -4,7 +4,9 @@
 
 %option yylineno
 
-%x
-
 %%
+
+html\(.*\)              return DECLINICIAL;
+[\t]"head"              return HEAD;                   
+
 
