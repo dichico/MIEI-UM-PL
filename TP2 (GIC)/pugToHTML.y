@@ -8,8 +8,19 @@
 %}
 
 %union {
+    char *stringValue;
 }
 
+%type <stringValue>
+
+FicheiroPug     :   DECLINICIAL HEAD ConteudoHead BODY ConteudoBody
+                ;
+        
+ConteudoHead    :
+                ;
+
+ConteudoBody    :
+                ;
 
 %%
 
