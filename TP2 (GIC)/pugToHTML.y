@@ -4,35 +4,36 @@
     extern int yylex();
     extern int yylineno;
     int yyerror();
-
 %}
 
 %union {
     char *stringValue;
 }
 
-%token DECLINICIAL HEAD BODY
+%token HTML HEAD
 %token string ERRO
 
-%type <stringValue> string Titulo Scripts ConteudoBody
+%type <stringValue> string DelcInicial AtributoHandler Atributos Atributo
+%type <stringValue> HEAD
 
 %%
 
-FicheiroPug     :   DECLINICIAL HEAD ConteudoHead BODY ConteudoBody
-                ;
-        
-ConteudoHead    :   Titulo
-                |   Titulo Scripts
-                ;
+FicheiroPug         :   DelcInicial HEAD                     { printf("%s\n<head>", $1); }
+                    ;
 
-Titulo          :   string
-                ;
+DelcInicial         :   HTML AtributoHandler                { asprintf(&$$, "<html %s>", $2); }
+                    ;
 
-Scripts         :   string
-                ;
 
-ConteudoBody    :   string
-                ;
+AtributoHandler     :   '(' Atributos ')'                   { asprintf(&$$, "%s", $2); }
+                    ;
+
+Atributos           :   Atributos ',' Atributo              { asprintf(&$$, "%s", $3); }
+                    |   Atributo                            { asprintf(&$$, "%s", $1); }
+                    ;
+
+Atributo            :   string                              { asprintf(&$$, "%s", $1); }
+                    ;
 
 %%
 
