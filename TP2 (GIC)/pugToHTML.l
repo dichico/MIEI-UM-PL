@@ -7,6 +7,6 @@
 %%
 
 html\(.*\)              return DECLINICIAL;
-[\t]"head"              return HEAD;                   
+"head"                  return HEAD;
 
 

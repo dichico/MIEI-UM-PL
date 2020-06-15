@@ -1,15 +1,15 @@
-html(lang="en")
+html(lang="pt")
     head
-        title= pageTitle
-        script(type='text/javascript').
-            if (foo) bar(1 + 5)
+        title= "TP2 PL"
+        link(href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk", crossorigin="anonymous")
     body
         h1 Pug - node template engine
-        #container.col
-            if youAreUsingPug
-                p You are amazing
-            else
-                p Get on it!
-            p.
-                Pug is a terse and simple templating language with a
-                strong focus on performance and powerful features    
+        #linha.row
+            #coluna.col
+                p This is plain old <em>text</em> content.
+            #coluna2.col.d-flex.justify-content-center
+                img(src="PL.jpg")
+
+        #linha.row
+            #coluna.col
+                p <b>Não sabemos disto.</b>
