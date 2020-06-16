@@ -1,5 +1,5 @@
-pugToHTML : y.tab.o lex.yy.o
-	gcc -o pugToHTML y.tab.o lex.yy.o -ll
+pugToHTML : y.tab.o lex.yy.o funcoesAux.o
+	gcc -o pugToHTML y.tab.o lex.yy.o funcoesAux.o -ll
 
 y.tab.o : y.tab.c
 	gcc -c y.tab.c
@@ -13,5 +13,8 @@ y.tab.c y.tab.h : pugToHTML.y
 lex.yy.c : pugToHTML.l y.tab.h
 	flex pugToHTML.l
 
+funcoesAux.o : funcoesAux.c funcoesAux.h
+	gcc -c funcoesAux.c
+
 clean:
-	rm -rf lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h pugToHTML
+	rm -rf lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h funcoesAux.o pugToHTML

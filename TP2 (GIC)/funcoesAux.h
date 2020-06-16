@@ -1,0 +1,1 @@
+int contaEspacos(char *texto);

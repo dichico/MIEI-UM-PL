@@ -1,24 +1,34 @@
 %{
     #include <stdio.h>
     #include <string.h>
+    #include "funcoesAux.h"
+
     extern int yylex();
     extern int yylineno;
+
     int yyerror();
+    int espacosAtuais = 0;
+    char *tagAtual;
 %}
 
-%union {
+%union {    
     char *stringValue;
 }
 
-%token HTML HEAD
+%token HTML
 %token string ERRO
 
-%type <stringValue> string DelcInicial AtributoHandler Atributos Atributo
-%type <stringValue> HEAD
+%type <stringValue> string DelcInicial Head AtributoHandler Atributos Atributo
 
 %%
 
-FicheiroPug         :   DelcInicial HEAD                     { printf("%s\n<head>", $1); }
+FicheiroPug         :   DelcInicial AbreHead                {
+                                                                espacosAtuais = contaEspacosIniciais($2); 
+                                                                printf("Espacos Head %i", espacosAtuais); 
+                                                            }
+                    ;
+
+Head                : string                                { asprintf(&$$, "%s", $1); }
                     ;
 
 DelcInicial         :   HTML AtributoHandler                { asprintf(&$$, "<html %s>", $2); }

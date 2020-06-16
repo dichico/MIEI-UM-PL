@@ -7,9 +7,8 @@
 %%
 
 "html"                  return HTML;
-\n[ ]+"head"            return HEAD;
 
 \(                      return *yytext;
 \)                      return *yytext;
 
-[a-zA-Z]+               {  yylval.stringValue = strdup(yytext); return string; }
+[\ a-zA-Z]+               {  yylval.stringValue = strdup(yytext); return string; }
