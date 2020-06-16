@@ -10,6 +10,7 @@
     int yyerror();
     
     int espacosAtuais = 0;
+    int espacosAux = 0;
     char *tagAtual;
 %}
 
@@ -20,13 +21,13 @@
 %token HTML TITLE
 %token string ERRO
 
-%type <stringValue> TITLE string DelcInicial AbreHead ConteudoHead
+%type <stringValue> TITLE string DelcInicial AbreHead ConteudoHead AbreBody
 %type <stringValue> Titulo AtributoHandler Atributos Atributo
 
 %%
 
-FicheiroPug         :   DelcInicial AbreHead ConteudoHead               {
-                                                                            printf("%s\n%s\n%s", $1, $2, $3);
+FicheiroPug         :   DelcInicial AbreHead ConteudoHead AbreBody      {
+                                                                            printf("%s\n%s\n%s\n%s", $1, $2, $3, $4);
                                                                         }
                     ;
 
@@ -35,6 +36,8 @@ DelcInicial         :   HTML AtributoHandler                            { asprin
 
 AbreHead            :   string                                          {
                                                                             espacosAtuais = contaEspacosIniciais($1);
+                                                                            tagAtual = strdup("head");
+                                                                            
                                                                             char *aberturaHead = strdup(" ");
 
                                                                             for(int i = 0; i < espacosAtuais-1; i++)
@@ -46,15 +49,36 @@ AbreHead            :   string                                          {
                                                                         }
                     ;
 
-ConteudoHead        : Titulo                                            { asprintf(&$$, "%s", $1); }
-                    | Titulo AtributoHandler
+ConteudoHead        :   Titulo                                          { asprintf(&$$, "%s", $1); }
+                    |   Titulo AtributoHandler
                     ;
 
-Titulo              : TITLE '"' string '"'                              {
-                                                                            espacosAtuais = contaEspacosIniciais($1);
-                                                                            char *aberturaHead = strdup(" ");
+AbreBody            :   string                                          {
+                                                                            // Fechar a Tag do Head
+                                                                            char *fechoHead = strdup(" ");
 
                                                                             for(int i = 0; i < espacosAtuais-1; i++)
+                                                                                 strcat(fechoHead, " ");
+                                                                            
+                                                                            strcat(fechoHead, "</head>");
+
+                                                                            // Abrir a Tag do Body
+                                                                            espacosAtuais = contaEspacosIniciais($1);
+                                                                            char *aberturaBody = strdup(" ");
+
+                                                                            for(int i = 0; i < espacosAtuais-1; i++)
+                                                                                 strcat(aberturaBody, " ");
+
+                                                                            strcat(aberturaBody, "<body>");
+
+                                                                            asprintf(&$$, "%s\n%s", fechoHead, aberturaBody); 
+                                                                        }
+
+Titulo              :   TITLE '"' string '"'                            {
+                                                                            espacosAux = contaEspacosIniciais($1);
+                                                                            char *aberturaHead = strdup(" ");
+
+                                                                            for(int i = 0; i < espacosAux-1; i++)
                                                                                  strcat(aberturaHead, " ");
 
                                                                             strcat(aberturaHead, "<title>");
@@ -70,7 +94,7 @@ Atributos           :   Atributos ',' Atributo                          { asprin
                     |   Atributo                                        { asprintf(&$$, "%s", $1); }
                     ;
 
-Atributo            :   string                                          { asprintf(&$$, "%s", $1); }
+Atributo            :   string '=' '"' string '"'                              { asprintf(&$$, "%s=\"%s\"", $1, $4); }
                     ;
 
 %%
