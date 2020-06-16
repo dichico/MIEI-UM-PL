@@ -15,34 +15,51 @@
     char *stringValue;
 }
 
-%token HTML
+%token HTML TITLE
 %token string ERRO
 
-%type <stringValue> string DelcInicial Head AtributoHandler Atributos Atributo
+%type <stringValue> string DelcInicial AbreHead ConteudoHead Titulo AtributoHandler Atributos Atributo
 
 %%
 
 FicheiroPug         :   DelcInicial AbreHead                {
-                                                                espacosAtuais = contaEspacosIniciais($2); 
-                                                                printf("Espacos Head %i", espacosAtuais); 
-                                                            }
+                                                                            printf("%s\n%s\n", $1, $2);
+                                                                        }
                     ;
 
-Head                : string                                { asprintf(&$$, "%s", $1); }
+DelcInicial         :   HTML AtributoHandler                            { asprintf(&$$, "<html %s>", $2); }
                     ;
 
-DelcInicial         :   HTML AtributoHandler                { asprintf(&$$, "<html %s>", $2); }
+AbreHead            :   string                                          {
+                                                                            espacosAtuais = contaEspacosIniciais($1);
+                                                                            char *aberturaHead = strdup(" ");
+
+                                                                            for(int i = 0; i < espacosAtuais-1; i++)
+                                                                                 strcat(aberturaHead, " ");
+
+                                                                            strcat(aberturaHead, "<head>");
+
+                                                                            asprintf(&$$, "%s", aberturaHead); 
+                                                                        }
                     ;
 
-
-AtributoHandler     :   '(' Atributos ')'                   { asprintf(&$$, "%s", $2); }
+ConteudoHead        :   Titulo                                          { asprintf(&$$, "%s", $1); }
+                    |   Titulo AtributoHandler                          { asprintf(&$$, "%s\n%s", $1, $2); }
                     ;
 
-Atributos           :   Atributos ',' Atributo              { asprintf(&$$, "%s", $3); }
-                    |   Atributo                            { asprintf(&$$, "%s", $1); }
+Titulo              :   TITLE '"' string '"'                            {
+
+                                                                        }
                     ;
 
-Atributo            :   string                              { asprintf(&$$, "%s", $1); }
+AtributoHandler     :   '(' Atributos ')'                               { asprintf(&$$, "%s", $2); }
+                    ;
+
+Atributos           :   Atributos ',' Atributo                          { asprintf(&$$, "%s", $3); }
+                    |   Atributo                                        { asprintf(&$$, "%s", $1); }
+                    ;
+
+Atributo            :   string                                          { asprintf(&$$, "%s", $1); }
                     ;
 
 %%
