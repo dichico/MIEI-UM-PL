@@ -6,11 +6,13 @@
 
 %%
 
+\n                      ;
+
 "html"                  return HTML;
-[ ]+"title="[ ]*        return TITLE;
+[ ]+"title="[ ]*        { yylval.stringValue = strdup(yytext); return TITLE; }
 
 \(                      return *yytext;
 \)                      return *yytext;
 \"                      return *yytext;
 
-[\ a-zA-Z]+               {  yylval.stringValue = strdup(yytext); return string; }
+[\ a-zA-Z]+             { yylval.stringValue = strdup(yytext); return string; }

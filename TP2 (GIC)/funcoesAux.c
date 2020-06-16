@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "funcoesAux.h"
+
 /*
  * Função: contaEspacosIniciais
  * ----------------------------

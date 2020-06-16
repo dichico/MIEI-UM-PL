@@ -6,7 +6,9 @@
     extern int yylex();
     extern int yylineno;
 
+    int contaEspacosIniciais(char *texto);
     int yyerror();
+    
     int espacosAtuais = 0;
     char *tagAtual;
 %}
@@ -18,12 +20,13 @@
 %token HTML TITLE
 %token string ERRO
 
-%type <stringValue> string DelcInicial AbreHead ConteudoHead Titulo AtributoHandler Atributos Atributo
+%type <stringValue> TITLE string DelcInicial AbreHead ConteudoHead
+%type <stringValue> Titulo AtributoHandler Atributos Atributo
 
 %%
 
-FicheiroPug         :   DelcInicial AbreHead                {
-                                                                            printf("%s\n%s\n", $1, $2);
+FicheiroPug         :   DelcInicial AbreHead ConteudoHead               {
+                                                                            printf("%s\n%s\n%s", $1, $2, $3);
                                                                         }
                     ;
 
@@ -43,12 +46,20 @@ AbreHead            :   string                                          {
                                                                         }
                     ;
 
-ConteudoHead        :   Titulo                                          { asprintf(&$$, "%s", $1); }
-                    |   Titulo AtributoHandler                          { asprintf(&$$, "%s\n%s", $1, $2); }
+ConteudoHead        : Titulo                                            { asprintf(&$$, "%s", $1); }
+                    | Titulo AtributoHandler
                     ;
 
-Titulo              :   TITLE '"' string '"'                            {
+Titulo              : TITLE '"' string '"'                              {
+                                                                            espacosAtuais = contaEspacosIniciais($1);
+                                                                            char *aberturaHead = strdup(" ");
 
+                                                                            for(int i = 0; i < espacosAtuais-1; i++)
+                                                                                 strcat(aberturaHead, " ");
+
+                                                                            strcat(aberturaHead, "<title>");
+
+                                                                            asprintf(&$$, "%s%s</title>", aberturaHead, $3); 
                                                                         }
                     ;
 
@@ -67,13 +78,11 @@ Atributo            :   string                                          { asprin
 int main() {
 
     yyparse();
-
     return 0;
 }
 
 int yyerror() {
     
     printf("Erro Sintático ou Léxico na linha: %d\n", yylineno);
-
     return 0;
 }
