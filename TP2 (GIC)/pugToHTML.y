@@ -21,34 +21,29 @@
 %token HTML HEAD TITLE LINK BODY
 %token initialSpaces string stringAttribute
 
-%type <stringValue> DeclInicial Head ContentHead
+%type <stringValue> DeclInicial BeginFile ContentHead Body
 %type <stringValue> Title Link Links AttributeHandler Attributes Atribute
 %type <stringValue> initialSpaces string stringAttribute
 
 %%
 
-FicheiroPug         :   DeclInicial Head                                            {
-                                                                                        printf("%s\n%s", $1, $2);
-                                                                                    }
+FicheiroPug         :   DeclInicial BeginFile                   { printf("%s\n%s", $1, $2); }
                     ;
 
-DeclInicial         :   HTML AttributeHandler                   { 
-                                                                    asprintf(&$$, "<html %s>", $2); 
-                                                                }
+DeclInicial         :   HTML AttributeHandler                   { asprintf(&$$, "<html %s>", $2); }
                     ;
 
-Head                :   initialSpaces HEAD ContentHead          {
+BeginFile           :   initialSpaces HEAD ContentHead          {
                                                                     actualSpaces = strdup($1);
                                                                     actualTag = strdup("head");
-                                                                    asprintf(&$$, "%s<head>\n%s\n", $1, $3); 
+                                                                    asprintf(&$$, "\n%s<head>\n%s\n", $1, $3); 
                                                                 }
                     ;
 
-ContentHead         : Title                                     { asprintf(&$$, "%s", $1); }
-                    | Title Links                               { asprintf(&$$, "%s\n%s", $1, $2); }
-                    | Links Title                               { asprintf(&$$, "%s\n%s", $1, $2); }
-                    | Links Title Links                         { asprintf(&$$, "%s\n%s\n%s", $1, $2, $3); }
-                    |
+ContentHead         : Title Body                                { asprintf(&$$, "%s\n%s", $1, $2); }
+                    | Title Links Body                          { asprintf(&$$, "%s\n%s\n%s", $1, $2, $3); }
+                    | Links Title Body                          { asprintf(&$$, "%s\n%s\n%s", $1, $2, $3); }
+                    | Links Title Links Body                    { asprintf(&$$, "%s\n%s\n%s\n%s", $1, $2, $3, $4); }
                     ;
 
 Title               :   initialSpaces TITLE stringAttribute     {
@@ -60,14 +55,14 @@ Links               :   Links Link                              { asprintf(&$$, 
                     |   Link                                    { asprintf(&$$, "%s", $1); }
                     ;
 
-Link                :   initialSpaces LINK AttributeHandler     { 
-                                                                    asprintf(&$$, "%s<link %s/>", $1, $3); 
-                                                                }
+Link                :   initialSpaces LINK AttributeHandler     { asprintf(&$$, "%s<link %s/>", $1, $3); }
                     ;
 
-AttributeHandler    :   '(' Attributes ')'                      { 
-                                                                    asprintf(&$$, "%s", $2); 
-                                                                }
+
+Body                :   initialSpaces BODY                      { asprintf(&$$, "%s</head>\n\n%s<body>", actualSpaces, $1); }
+                    ;
+
+AttributeHandler    :   '(' Attributes ')'                      { asprintf(&$$, "%s", $2); }
                     ;
 
 Attributes          :   Attributes ',' Atribute                 { asprintf(&$$, "%s, %s", $1, $3); }
