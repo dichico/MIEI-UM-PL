@@ -18,17 +18,17 @@
     char *stringValue;
 }
 
-%token HTML HEAD TITLE LINK BODY ERRO
+%token HTML HEAD TITLE LINK BODY
 %token initialSpaces string stringAttribute
 
-%type <stringValue> DeclInicial OpenHead ContentHead OpenBody ContentBody
+%type <stringValue> DeclInicial Head ContentHead
 %type <stringValue> Title Link Links AttributeHandler Attributes Atribute
-%type <stringValue> initialSpaces string stringAttribute ERRO
+%type <stringValue> initialSpaces string stringAttribute
 
 %%
 
-FicheiroPug         :   DeclInicial OpenHead ContentHead OpenBody                   {
-                                                                                        printf("%s\n%s\n%s\n%s", $1, $2, $3, $4);
+FicheiroPug         :   DeclInicial Head                                            {
+                                                                                        printf("%s\n%s", $1, $2);
                                                                                     }
                     ;
 
@@ -37,16 +37,18 @@ DeclInicial         :   HTML AttributeHandler                   {
                                                                 }
                     ;
 
-OpenHead            :   initialSpaces HEAD                      {
+Head                :   initialSpaces HEAD ContentHead          {
                                                                     actualSpaces = strdup($1);
                                                                     actualTag = strdup("head");
-
-                                                                    asprintf(&$$, "%s<head>", $1); 
+                                                                    asprintf(&$$, "%s<head>\n%s\n", $1, $3); 
                                                                 }
                     ;
 
-ContentHead         :   Title                                   { asprintf(&$$, "%s", $1); }
-                    |   Title Link                              { asprintf(&$$, "%s\n%s", $1, $2); }
+ContentHead         : Title                                     { asprintf(&$$, "%s", $1); }
+                    | Title Links                               { asprintf(&$$, "%s\n%s", $1, $2); }
+                    | Links Title                               { asprintf(&$$, "%s\n%s", $1, $2); }
+                    | Links Title Links                         { asprintf(&$$, "%s\n%s\n%s", $1, $2, $3); }
+                    |
                     ;
 
 Title               :   initialSpaces TITLE stringAttribute     {
@@ -54,19 +56,14 @@ Title               :   initialSpaces TITLE stringAttribute     {
                                                                 }
                     ;
 
-Links               :   Link Links                              { asprintf(&$$, "%s\n%s", $1, $2); }  
-                    |   Link                                    { asprintf(&$$, "%s", $1); } 
-                    |
+Links               :   Links Link                              { asprintf(&$$, "%s\n%s", $1, $2); } 
+                    |   Link                                    { asprintf(&$$, "%s", $1); }
                     ;
 
 Link                :   initialSpaces LINK AttributeHandler     { 
                                                                     asprintf(&$$, "%s<link %s/>", $1, $3); 
                                                                 }
                     ;
-
-OpenBody            :   initialSpaces BODY                      {
-                                                                    asprintf(&$$, "%s</head>\n%s<body>", actualSpaces, $1);
-                                                                }
 
 AttributeHandler    :   '(' Attributes ')'                      { 
                                                                     asprintf(&$$, "%s", $2); 
@@ -75,7 +72,6 @@ AttributeHandler    :   '(' Attributes ')'                      {
 
 Attributes          :   Attributes ',' Atribute                 { asprintf(&$$, "%s, %s", $1, $3); }
                     |   Atribute                                { asprintf(&$$, "%s", $1); }
-                    |
                     ;
 
 Atribute            :   string '=' stringAttribute              { asprintf(&$$, "%s=%s", $1, $3); }

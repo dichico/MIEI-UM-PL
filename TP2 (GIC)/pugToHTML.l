@@ -23,3 +23,5 @@
 ^[ ]*                   { yylval.stringValue = strdup(yytext); return initialSpaces; }
 \"(.*?)\"               { yylval.stringValue = strdup(yytext); return stringAttribute; }
 [a-zA-Z0-9]+            { yylval.stringValue = strdup(yytext); return string; }
+
+%%
