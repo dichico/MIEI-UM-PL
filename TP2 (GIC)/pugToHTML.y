@@ -50,7 +50,7 @@ ContentHead         :   Title                                   { asprintf(&$$, 
                     ;
 
 Title               :   initialSpaces TITLE stringAttribute     {
-                                                                   asprintf(&$$, "%s<title>%s</title>", $1, $3);
+                                                                    asprintf(&$$, "%s<title>%s</title>", $1, $3);
                                                                 }
                     ;
 
