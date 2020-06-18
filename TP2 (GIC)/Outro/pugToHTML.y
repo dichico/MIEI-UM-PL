@@ -10,7 +10,7 @@
     int contaEspacosIniciais(char *texto);
     int yyerror();
     
-    char *actualSpaces;
+    int actualSpaces;
     char *actualTag;
 %}
 
@@ -19,11 +19,11 @@
 }
 
 %token HTML HEAD TITLE LINK BODY HEADER
-%token initialSpaces string stringAttribute
+%token initialHead initialTitle initialLink initialBody initialHeader string stringTitle stringAttribute
 
 %type <stringValue> DeclInicial ContentPugFile Head ContentHead Body ContentBody
 %type <stringValue> Title Link Links AttributeHandler Attributes Atribute
-%type <stringValue> initialSpaces string stringAttribute
+%type <stringValue> initialHead initialTitle initialLink initialBody initialHeader string stringTitle stringAttribute
 
 %%
 
@@ -36,10 +36,17 @@ DeclInicial         :   HTML AttributeHandler                   { asprintf(&$$, 
 ContentPugFile      :   Head                                    { asprintf(&$$, "%s", $1); }
                     ;
 
-Head                :   initialSpaces HEAD ContentHead          {
-                                                                    actualSpaces = strdup($1);
+Head                :   initialHead ContentHead                 {
+                                                                    actualSpaces = contaEspacosIniciais($1);
                                                                     actualTag = strdup("head");
-                                                                    asprintf(&$$, "\n%s<head>\n%s\n", $1, $3); 
+                                                                    
+                                                                    char *aberturaHead = strdup(" ");
+
+                                                                    for(int i = 0; i < actualSpaces-1; i++)
+                                                                            strcat(aberturaHead, " ");
+
+                                                                    strcat(aberturaHead, "<head>");
+                                                                    asprintf(&$$, "%s", aberturaHead);
                                                                 }
                     ;
 
@@ -49,21 +56,30 @@ ContentHead         :   Title Body                              { asprintf(&$$, 
                     |   Links Title Links Body                  { asprintf(&$$, "%s\n%s\n%s\n%s", $1, $2, $3, $4); }
                     ;
 
-Title               :   initialSpaces TITLE stringAttribute     { asprintf(&$$, "%s<title>%s</title>", $1, $3); }
+Title               :   initialTitle '"' string '"'             {
+                                                                    actualSpaces = contaEspacosIniciais($1);
+                                                                    char *aberturaTitle = strdup(" ");
+
+                                                                    for(int i = 0; i < actualSpaces-1; i++)
+                                                                            strcat(aberturaTitle, " ");
+
+                                                                    strcat(aberturaTitle, "<title>");
+                                                                    asprintf(&$$, "%s%s</title>", aberturaTitle, $3); 
+                                                                }
                     ;
 
 Links               :   Links Link                              { asprintf(&$$, "%s\n%s", $1, $2); } 
                     |   Link                                    { asprintf(&$$, "%s", $1); }
                     ;
 
-Link                :   initialSpaces LINK AttributeHandler     { asprintf(&$$, "%s<link %s/>", $1, $3); }
+Link                :   initialLink AttributeHandler            { asprintf(&$$, "%s<link %s/>", $1-4, $1); }
                     ;
 
 
-Body                :   initialSpaces BODY ContentBody          { asprintf(&$$, "%s</head>\n\n%s<body>\n%s", actualSpaces, $1, $3); }
+Body                :   initialBody ContentBody                 { printf("LOL%sLOL", $1);asprintf(&$$, "%s</head>\n\n%s<body>\n%s", actualSpaces, $1-4, $1); }
                     ;
 
-ContentBody         :   initialSpaces HEADER string             { asprintf(&$$, "%s<h1>%s", $1, $3); }
+ContentBody         :   initialHeader string                    { asprintf(&$$, "%s<h1>%s", $1-2, $1); }
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                      { asprintf(&$$, "%s", $2); }
@@ -73,7 +89,7 @@ Attributes          :   Attributes ',' Atribute                 { asprintf(&$$, 
                     |   Atribute                                { asprintf(&$$, "%s", $1); }
                     ;
 
-Atribute            :   string '=' stringAttribute              { asprintf(&$$, "%s=%s", $1, $3); }
+Atribute            :   stringAttribute                         { asprintf(&$$, "%s", $1); }
                     ;
 
 %%
