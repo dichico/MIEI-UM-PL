@@ -10,7 +10,7 @@
     int contaEspacosIniciais(char *texto);
     int yyerror();
     
-    int actualSpaces = 0;
+    extern int actualSpaces = 0;
     int auxSpaces = 0;
     char *actualTag;
 %}
@@ -57,7 +57,7 @@ ContentHead         :   Title Body                              { asprintf(&$$, 
                     |   Links Title Links Body                  { asprintf(&$$, "%s\n%s\n%s\n%s", $1, $2, $3, $4); }
                     ;
 
-Title               :   initialTitle '"' string '"'             {
+Title               :   initialTitle stringAttribute            {
                                                                     auxSpaces = contaEspacosIniciais($1);
                                                                     char *openTagTitle = strdup(" ");
 
@@ -65,7 +65,7 @@ Title               :   initialTitle '"' string '"'             {
                                                                         strcat(openTagTitle, " ");
 
                                                                     strcat(openTagTitle, "<title>");
-                                                                    asprintf(&$$, "%s%s</title>", openTagTitle, $3); 
+                                                                    asprintf(&$$, "%s%s</title>", openTagTitle, $2); 
                                                                 }
                     ;
 
@@ -106,7 +106,16 @@ Body                :   initialBody ContentBody                 {
                                                                 }
                     ;
 
-ContentBody         :   initialHeader string                    { asprintf(&$$, "<h1>%s</h1>", $2); } 
+ContentBody         :   initialHeader string                    { 
+                                                                    auxSpaces = contaEspacosIniciais($1);
+                                                                    char *openTagHeader = strdup(" ");
+
+                                                                    for(int i = 0; i < auxSpaces-1; i++)
+                                                                        strcat(openTagHeader, " ");
+
+                                                                    strcat(openTagHeader, "<h1>");
+                                                                    asprintf(&$$, "%s%s</h1>", openTagHeader, $2);                                                                 
+                                                                }
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                      { asprintf(&$$, "%s", $2); }

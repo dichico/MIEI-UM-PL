@@ -4,6 +4,8 @@
 
 %option yylineno
 
+%x HEADERS
+
 %%
 
 \n                                  ;
@@ -19,9 +21,16 @@
 [ ]+"title="[ ]*                    { yylval.stringValue = strdup(yytext); return initialTitle; }
 [ ]+"link"                          { yylval.stringValue = strdup(yytext); return initialLink; }
 [ ]+"body"                          { yylval.stringValue = strdup(yytext); return initialBody; }
-[ ]+"h1"[ ]*                        {  yylval.stringValue = strdup(yytext); return initialHeader; }
+[ ]+"h1"[ ]*                        { yylval.stringValue = strdup(yytext); BEGIN HEADERS; return initialHeader;}
 
-[a-zA-Z]+\=\".+\"                   { yylval.stringValue = strdup(yytext); return stringAttribute; }
-[\ a-zA-Z0-9]+                      { yylval.stringValue = strdup(yytext); return string; }
+<HEADERS>{
+    .* {
+        yylval.stringValue = strdup(yytext); 
+        return string;
+        BEGIN INITIAL;
+    }
+}
+
+[a-zA-Z]*\=*\".+\"                   {  yylval.stringValue = strdup(yytext); return stringAttribute; }
 
 %%
