@@ -21,12 +21,12 @@
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
 %token HTML
-%token beginTag contentTag stringAttribute
+%token beginTag contentTag beginTagAttribute beginTagSelfClosing contentAttribute
 
 %type <stringValue> HTML
 %type <stringValue> DeclInicial ContentPugFile
-%type <stringValue> Tags Tag AttributeHandler Attributes Atribute
-%type <stringValue> beginTag contentTag stringAttribute
+%type <stringValue> Tags Tag TagAttribute TagSelfClosing AttributeHandler Attributes Atribute
+%type <stringValue> beginTag contentTag beginTagAttribute beginTagSelfClosing contentAttribute
 
 %%
 
@@ -40,10 +40,15 @@ Tags                :   Tags Tag                                { asprintf(&$$, 
                     |   Tag                                     { asprintf(&$$, "%s", $1); }
                     ;
 
-Tag                 :   beginTag AttributeHandler               { asprintf(&$$, "<%s %s>", $1, $2); }
-                    |   beginTag  '/' contentTag
-                    |   beginTag '=' '"' contentTag '"'
-                    |   beginTag contentTag                     { asprintf(&$$, "<%s> %s", $1, $2); }
+Tag                 :   TagAttribute                            { asprintf(&$$, "%s", $1); }
+                    |   TagSelfClosing                          { asprintf(&$$, "%s", $1); }      
+                    ;
+
+TagAttribute        :   beginTagAttribute AttributeHandler      { asprintf(&$$, "<%s %s>", $1, $2); }
+                    ;
+
+TagSelfClosing      :   beginTagSelfClosing                     { asprintf(&$$, "<%s>", $1); }
+                    |   beginTagSelfClosing contentTag          { asprintf(&$$, "<%s>%s", $1, $2); }
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                      { asprintf(&$$, "%s", $2); }
@@ -53,7 +58,7 @@ Attributes          :   Attributes ',' Atribute                 { asprintf(&$$, 
                     |   Atribute                                { asprintf(&$$, "%s", $1); }
                     ;
 
-Atribute            :   stringAttribute                         { asprintf(&$$, "%s", $1); }
+Atribute            :   contentAttribute                        { asprintf(&$$, "%s", $1); }
                     ;
 
 %%

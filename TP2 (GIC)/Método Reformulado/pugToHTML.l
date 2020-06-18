@@ -11,11 +11,15 @@
 \n                                  ;
 \(                                  return *yytext;
 \)                                  return *yytext;
+\/                                  return *yytext;
 \"                                  return *yytext;
 \=                                  return *yytext;
 \,                                  return *yytext;
 
-^[ ]*[a-zA-Z0-9]+[ ]*               { yylval.stringValue = strdup(yytext); BEGIN CONTENTTAG; return beginTag;}
+^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTagAttribute;}
+[a-zA-Z]*\=*\".+\"                  { yylval.stringValue = strdup(yytext); return contentAttribute; }
+
+^[ ]*[a-zA-Z0-9]+\/                 { yylval.stringValue = strdup(yytext); BEGIN CONTENTTAG; return beginTagSelfClosing;}
 
 <CONTENTTAG>{
     .*\n {
@@ -25,6 +29,5 @@
     }
 }
 
-[a-zA-Z]*\=*\".+\"                  { yylval.stringValue = strdup(yytext); return stringAttribute; }
 
 %%
