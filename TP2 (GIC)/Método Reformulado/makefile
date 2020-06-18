@@ -13,8 +13,11 @@ y.tab.c y.tab.h : pugToHTML.y
 lex.yy.c : pugToHTML.l y.tab.h
 	flex pugToHTML.l
 
+funcoesAux.o : funcoesAux.c funcoesAux.h
+	gcc -c funcoesAux.c
+
 structTags.o : structTags.c structTags.h
 	gcc -c structTags.c
 
 clean:
-	rm -rf lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h structTags.o pugToHTML
+	rm -rf lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h structTags.o funcoesAux.o pugToHTML
