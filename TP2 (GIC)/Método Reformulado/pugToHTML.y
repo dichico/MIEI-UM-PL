@@ -20,19 +20,18 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token HTML
-%token beginTag beginTagSelfClosing beginTagDefault contentTag contentAttribute
+%token beginTag contentTag contentAttribute
 
-%type <stringValue> HTML
 %type <stringValue> ContentPugFile
-%type <stringValue> Tags Tag TagAttribute TagSelfClosing TagDefault AttributeHandler Attributes Atribute
-%type <stringValue> beginTag beginTagSelfClosing beginTagDefault contentTag contentAttribute
+%type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing
+%type <stringValue> AttributeHandler Attributes Attribute
+%type <stringValue> beginTag contentTag contentAttribute
 
 %%
 
-FicheiroPug         :   ContentPugFile                          { printf("%s", $1); }
+FicheiroPug         :   ContentPugFile                              { printf("%s", $1); }
 
-ContentPugFile      :   Tags                                    { asprintf(&$$, "%s", $1); }
+ContentPugFile      :   Tags                                        { asprintf(&$$, "%s", $1); }
                     ;
 
 Tags                :   Tag '\n' Tags                               { asprintf(&$$, "%s\n%s", $1, $3); }
@@ -46,6 +45,7 @@ Tag                 :   TagDefault                                  { asprintf(&
 
 TagDefault          :   beginTag                                    { asprintf(&$$, "<%s>", $1); }   
                     |   beginTag contentTag                         { asprintf(&$$, "<%s>%s", $1, $2); }
+                    |   beginTag '=' contentTag                     { asprintf(&$$, "<%s>%s", $1, $3); }
                     ;
 
 TagAttribute        :   beginTag AttributeHandler                   { asprintf(&$$, "<%s %s>", $1, $2); }   
@@ -61,11 +61,11 @@ TagSelfClosing      :   beginTag '/'                                { asprintf(&
 AttributeHandler    :   '(' Attributes ')'                          { asprintf(&$$, "%s", $2); }
                     ;
 
-Attributes          :   Attributes ',' Atribute                     { asprintf(&$$, "%s, %s", $1, $3); }
-                    |   Atribute                                    { asprintf(&$$, "%s", $1); }
+Attributes          :   Attributes ',' Attribute                     { asprintf(&$$, "%s, %s", $1, $3); }
+                    |   Attribute                                    { asprintf(&$$, "%s", $1); }
                     ;
 
-Atribute            :   contentAttribute                            { asprintf(&$$, "%s", $1); }
+Attribute           :   contentAttribute                            { asprintf(&$$, "%s", $1); }
                     ;
 
 %%

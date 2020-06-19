@@ -13,12 +13,17 @@
 \)                                  return *yytext;
 \/                                  return *yytext;
 \"                                  return *yytext;
-\=                                  return *yytext;
 \,                                  return *yytext;
+\=                                  { BEGIN CONTENTTAG; return *yytext; }
 
-^[ ]*[a-zA-Z0-9]+               { yylval.stringValue = strdup(yytext); return beginTag; }
+^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
+[ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
+[a-zA-Z0-9]*\=*\".+\"               { yylval.stringValue = strdup(yytext); return contentAttribute; }
 
-[ ][^\ ].*                      { yylval.stringValue = strdup(yytext); return contentTag; }
-[a-zA-Z0-9]*\=*\".+\"           { yylval.stringValue = strdup(yytext); return contentAttribute; }
+<CONTENTTAG>{
+    [ ]\"   ;
+    [^\"]*  { yylval.stringValue = strdup(yytext); return contentTag; }
+    .       BEGIN INITIAL;
+}
 
 %%
