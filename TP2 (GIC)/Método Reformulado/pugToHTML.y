@@ -24,7 +24,7 @@
 %token beginTagAttribute beginTagSelfClosing beginTagDefault contentTag contentAttribute
 
 %type <stringValue> HTML
-%type <stringValue> DeclInicial ContentPugFile
+%type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagAttribute TagSelfClosing TagDefault AttributeHandler Attributes Atribute
 %type <stringValue> beginTagAttribute beginTagSelfClosing beginTagDefault contentTag contentAttribute
 
@@ -47,13 +47,13 @@ Tag                 :   TagAttribute                            { asprintf(&$$, 
 TagAttribute        :   beginTagAttribute AttributeHandler      { asprintf(&$$, "<%s %s>", $1, $2); }
                     ;
 
-TagSelfClosing      :   beginTagSelfClosing                     { asprintf(&$$, "<%s>", $1); }
-                    |   beginTagSelfClosing contentTag          { asprintf(&$$, "<%s>%s", $1, $2); }
+TagSelfClosing      :   beginTagAttribute '/'                     { asprintf(&$$, "<%s>", $1); }
+                    |   beginTagAttribute '/' contentTag          { asprintf(&$$, "<%s/>%s", $1, $3); }
                     |   beginTagAttribute AttributeHandler '/'  { asprintf(&$$, "<%s %s/>", $1, $2); }
                     ;
 
-TagDefault          :   beginTagDefault                         { asprintf(&$$, "<%s>", $1); }
-                    |   beginTagDefault contentTag              { asprintf(&$$, "<%s>%s", $1, $2); }
+TagDefault          :   beginTagAttribute                            { asprintf(&$$, "<%s>", $1); }
+                    |   beginTagAttribute contentTag              { asprintf(&$$, "<%s>%s", $1, $2); }
                     ;
 AttributeHandler    :   '(' Attributes ')'                      { asprintf(&$$, "%s", $2); }
                     ;
