@@ -20,12 +20,12 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentAttributes
+%token beginTag contentTag contentPipedTag contentAttributes
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing
 %type <stringValue> AttributeHandler Attributes Attribute
-%type <stringValue> beginTag contentTag contentAttributes
+%type <stringValue> beginTag contentTag contentPipedTag contentAttributes
 
 %%
 
@@ -59,6 +59,9 @@ TagSelfClosing      :   beginTag '/'                                    { asprin
                     |   beginTag AttributeHandler '/'                   { asprintf(&$$, "<%s %s />", $1, $2); }
                     |   beginTag AttributeHandler '/' contentTag        { asprintf(&$$, "<%s %s />%s", $1, $2, $4); }
                     |   beginTag AttributeHandler '/' '=' contentTag    { asprintf(&$$, "<%s %s />%s", $1, $2, $5); }
+                    ;
+
+TagWithBlocks       :   beginTag    
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
