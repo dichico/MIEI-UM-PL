@@ -8,10 +8,15 @@
     extern int yylineno;
     extern char* yytext;
 
-    int contaEspacosIniciais(char *texto);
+    int countInitialSpaces(char *text);
+    char *tagWithSpaces(char *text, int initialOrFinal);
+
     int yyerror();
 
     int auxSpaces = 0;
+    char *auxInitialTag;
+    char *auxFinalTag;
+
     Tags *listTags;
 %}
 
@@ -43,7 +48,13 @@ Tag                 :   TagDefault                                      { asprin
                     |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }            
                     ;
 
-TagDefault          :   beginTag                                        { asprintf(&$$, "<%s>", $1); }   
+TagDefault          :   beginTag                                        { 
+                                                                            auxSpaces = countInitialSpaces($1);
+                                                                            auxInitialTag = tagWithSpaces($1, 1);
+                                                                            auxFinalTag = tagWithSpaces($1, 0);
+
+                                                                            asprintf(&$$, "%s", auxInitialTag); 
+                                                                        }   
                     |   beginTag contentTag                             { asprintf(&$$, "<%s>%s", $1, $2); }
                     |   beginTag '=' contentTag                         { asprintf(&$$, "<%s>%s", $1, $3); }
                     ;

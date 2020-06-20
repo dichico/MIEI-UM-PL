@@ -5,30 +5,34 @@
 #include "structTags.h"
 
 // Linked List Initialization Function
-Tags* init() {
-    
+Tags *init()
+{
+
     Tags *listTags = malloc(sizeof(struct tags));
     listTags = NULL;
 
-    return listTags; 
+    return listTags;
 }
 
 // Insert New Tag into the Linked List
-Tags* insertTag(Tags *listTags, int spaces, char *nameTag) {
+Tags *insertTag(Tags *listTags, int spaces, char *nameTag)
+{
 
     Tags *newList = malloc(sizeof(struct tags));
-    
+
     // Empty Linked List
-    if(listTags == NULL) {
-        newList -> numberSpaces = spaces;
-        newList -> name = nameTag;
-        newList -> next = NULL;
+    if (listTags == NULL)
+    {
+        newList->numberSpaces = spaces;
+        newList->name = nameTag;
+        newList->next = NULL;
     }
     // Otherwise
-    else {
-        newList -> numberSpaces = spaces;
-        newList -> name = nameTag;        
-        newList -> next = listTags;
+    else
+    {
+        newList->numberSpaces = spaces;
+        newList->name = nameTag;
+        newList->next = listTags;
     }
 
     listTags = newList;
@@ -37,13 +41,15 @@ Tags* insertTag(Tags *listTags, int spaces, char *nameTag) {
 }
 
 // Print all Tags into the Linked List
-void printTags(Tags *listTags){
+void printTags(Tags *listTags)
+{
 
-	while(listTags){
-		
-		printf("Tag Name: %s\n", listTags -> name);
-		printf("Number Spaces: %i\n", listTags -> numberSpaces);
+    while (listTags)
+    {
 
-		listTags = listTags -> next;
-	}
+        printf("Tag Name: %s\n", listTags->name);
+        printf("Number Spaces: %i\n", listTags->numberSpaces);
+
+        listTags = listTags->next;
+    }
 }

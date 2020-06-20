@@ -1,26 +1,43 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "funcoesAux.h"
 
-/*
- * Função: contaEspacosIniciais
- * ----------------------------
- *   Retorna o número de espaços que existe num determinado texto até encontrar o primeiro caracter
- *
- *   texto: Texto ao qual vai ser aplicado o cálculo
- *
- *   returns: O número de espaços iniciais existente em texto
- */
-int contaEspacosIniciais(char *texto)
+int countInitialSpaces(char *text)
 {
+    int numberSpaces = 0;
 
-    int numEspacos = 0;
-
-    for (int i = 0; texto[i] != '\0'; i++)
+    for (int i = 0; text[i] != '\0'; i++)
     {
-        if (texto[i] == ' ')
-            numEspacos++;
+        if (text[i] == ' ')
+            numberSpaces++;
         else
-            return numEspacos;
+            return numberSpaces;
     }
+}
+
+char *tagWithSpaces(char *text, int initialOrFinal)
+{
+    char *spaces = strdup(" ");
+    char *tag;
+
+    if (initialOrFinal == isInitial)
+        tag = strdup("<");
+    else
+        tag = strdup("</");
+
+    for (int i = 1; text[i] != '\0'; i++)
+    {
+        if (text[i] == ' ')
+            strcat(spaces, strdup(" "));
+        else
+        {
+            strcat(tag, &text[i]);
+            break;
+        }
+    }
+
+    strcat(tag, ">");
+
+    return strcat(spaces, tag);
 }
