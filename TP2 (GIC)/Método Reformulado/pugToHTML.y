@@ -20,52 +20,51 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentAttribute
+%token beginTag contentTag contentAttributes
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing
 %type <stringValue> AttributeHandler Attributes Attribute
-%type <stringValue> beginTag contentTag contentAttribute
+%type <stringValue> beginTag contentTag contentAttributes
 
 %%
 
-FicheiroPug         :   ContentPugFile                              { printf("%s", $1); }
+FicheiroPug         :   ContentPugFile                                  { printf("%s", $1); }
 
-ContentPugFile      :   Tags                                        { asprintf(&$$, "%s", $1); }
+ContentPugFile      :   Tags                                            { asprintf(&$$, "%s", $1); }
                     ;
 
-Tags                :   Tag '\n' Tags                               { asprintf(&$$, "%s\n%s", $1, $3); }
-                    |   Tag                                         { asprintf(&$$, "%s", $1); }
+Tags                :   Tag '\n' Tags                                   { asprintf(&$$, "%s\n%s", $1, $3); }
+                    |   Tag                                             { asprintf(&$$, "%s", $1); }
                     ;
 
-Tag                 :   TagDefault                                  { asprintf(&$$, "%s", $1); }
-                    |   TagAttribute                                { asprintf(&$$, "%s", $1); }
-                    |   TagSelfClosing                              { asprintf(&$$, "%s", $1); }            
+Tag                 :   TagDefault                                      { asprintf(&$$, "%s", $1); }
+                    |   TagAttribute                                    { asprintf(&$$, "%s", $1); }
+                    |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }            
                     ;
 
-TagDefault          :   beginTag                                    { asprintf(&$$, "<%s>", $1); }   
-                    |   beginTag contentTag                         { asprintf(&$$, "<%s>%s", $1, $2); }
-                    |   beginTag '=' contentTag                     { asprintf(&$$, "<%s>%s", $1, $3); }
+TagDefault          :   beginTag                                        { asprintf(&$$, "<%s>", $1); }   
+                    |   beginTag contentTag                             { asprintf(&$$, "<%s>%s", $1, $2); }
+                    |   beginTag '=' contentTag                         { asprintf(&$$, "<%s>%s", $1, $3); }
                     ;
 
-TagAttribute        :   beginTag AttributeHandler                   { asprintf(&$$, "<%s %s>", $1, $2); }   
-                    |   beginTag AttributeHandler contentTag        { asprintf(&$$, "<%s %s>%s", $1, $2, $3); }
+TagAttribute        :   beginTag AttributeHandler                       { asprintf(&$$, "<%s %s>", $1, $2); }   
+                    |   beginTag AttributeHandler contentTag            { asprintf(&$$, "<%s %s>%s", $1, $2, $3); }
+                    |   beginTag AttributeHandler '=' contentTag        { asprintf(&$$, "<%s %s>%s", $1, $2, $4); }
                     ;
 
-TagSelfClosing      :   beginTag '/'                                { asprintf(&$$, "<%s />", $1); }
-                    |   beginTag '/' contentTag                     { asprintf(&$$, "<%s />%s", $1, $3); }
-                    |   beginTag AttributeHandler '/'               { asprintf(&$$, "<%s %s />", $1, $2); }
-                    |   beginTag AttributeHandler '/' contentTag    { asprintf(&$$, "<%s %s />%s", $1, $2, $4); }
+TagSelfClosing      :   beginTag '/'                                    { asprintf(&$$, "<%s />", $1); }
+                    |   beginTag '/' contentTag                         { asprintf(&$$, "<%s />%s", $1, $3); }
+                    |   beginTag '/' '=' contentTag                     { asprintf(&$$, "<%s />%s", $1, $4); }
+                    |   beginTag AttributeHandler '/'                   { asprintf(&$$, "<%s %s />", $1, $2); }
+                    |   beginTag AttributeHandler '/' contentTag        { asprintf(&$$, "<%s %s />%s", $1, $2, $4); }
+                    |   beginTag AttributeHandler '/' '=' contentTag    { asprintf(&$$, "<%s %s />%s", $1, $2, $5); }
                     ;
 
-AttributeHandler    :   '(' Attributes ')'                          { asprintf(&$$, "%s", $2); }
+AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
 
-Attributes          :   Attributes ',' Attribute                     { asprintf(&$$, "%s, %s", $1, $3); }
-                    |   Attribute                                    { asprintf(&$$, "%s", $1); }
-                    ;
-
-Attribute           :   contentAttribute                            { asprintf(&$$, "%s", $1); }
+Attributes          :   contentAttributes                               { asprintf(&$$, "%s", $1); }
                     ;
 
 %%
