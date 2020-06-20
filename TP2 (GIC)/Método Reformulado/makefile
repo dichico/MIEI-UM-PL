@@ -1,5 +1,5 @@
-pugToHTML : y.tab.o lex.yy.o funcoesAux.o structTags.o
-	gcc -o pugToHTML y.tab.o lex.yy.o funcoesAux.o structTags.o -ll
+pugToHTML : y.tab.o lex.yy.o structTags.o
+	gcc -o pugToHTML y.tab.o lex.yy.o structTags.o -ll
 
 y.tab.o : y.tab.c
 	gcc -c y.tab.c

@@ -41,6 +41,19 @@ Tags *insertTag(Tags *listTags, int spaces, char *nameTag)
 }
 
 // Print all Tags into the Linked List
+// Formated Text
+void printFinalTags(Tags *listTags)
+{
+    printf("\n");
+
+    while (listTags)
+    {
+        printf("%s\n", listTags->name);
+        listTags = listTags->next;
+    }
+}
+
+// Print all Tags into the Linked List
 void printTags(Tags *listTags)
 {
 

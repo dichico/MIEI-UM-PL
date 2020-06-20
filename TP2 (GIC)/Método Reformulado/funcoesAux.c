@@ -16,9 +16,9 @@ int countInitialSpaces(char *text)
     }
 }
 
-char *tagWithSpaces(char *text, int initialOrFinal)
+char *tagWithSpaces(char *text, int initialOrFinal, int isAtributte, int numberSpaces)
 {
-    char *spaces = strdup(" ");
+    char *spaces;
     char *tag;
 
     if (initialOrFinal == isInitial)
@@ -26,18 +26,31 @@ char *tagWithSpaces(char *text, int initialOrFinal)
     else
         tag = strdup("</");
 
-    for (int i = 1; text[i] != '\0'; i++)
+    if (numberSpaces != 0)
     {
-        if (text[i] == ' ')
-            strcat(spaces, strdup(" "));
-        else
+        spaces = strdup(" ");
+
+        for (int i = 1; text[i] != '\0'; i++)
         {
-            strcat(tag, &text[i]);
-            break;
+            if (text[i] == ' ')
+                strcat(spaces, strdup(" "));
+            else
+            {
+                strcat(tag, &text[i]);
+                break;
+            }
         }
     }
+    else
+    {
+        strcat(tag, text);
+    }
 
-    strcat(tag, ">");
-
-    return strcat(spaces, tag);
+    if (!isAtributte)
+    {
+        strcat(tag, ">");
+        return strcat(spaces, tag);
+    }
+    else if (isAtributte && initialOrFinal == isFinal)
+        return strcat(tag, ">");
 }
