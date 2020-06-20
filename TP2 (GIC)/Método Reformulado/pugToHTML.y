@@ -15,6 +15,7 @@
 
     int auxNumberSpaces = 0;
     char *auxInitialTag;
+    char *initialTag;
     char *auxFinalTag;
 
     Tags *listTags;
@@ -36,7 +37,6 @@
 
 FicheiroPug         :   ContentPugFile                                  { 
                                                                             printf("%s", $1);
-                                                                            printFinalTags(listTags);
                                                                         }
 
 ContentPugFile      :   Tags                                            { asprintf(&$$, "%s", $1); }
@@ -46,21 +46,32 @@ Tags                :   Tag '\n' Tags                                   { asprin
                     |   Tag                                             { asprintf(&$$, "%s", $1); }
                     ;
 
-Tag                 :   TagDefault                                      { asprintf(&$$, "%s", $1); }
-                    |   TagAttribute                                    { asprintf(&$$, "%s", $1); }
+Tag                 :   TagDefault                                      { 
+                                                                            listTags = insertTag(listTags, auxNumberSpaces, auxFinalTag);       
+                                                                            asprintf(&$$, "%s", $1); 
+                                                                        }
+                    |   TagAttribute                                    { 
+                                                                            listTags = insertTag(listTags, auxNumberSpaces, auxFinalTag);                                                                                   
+                                                                            asprintf(&$$, "%s", $1); 
+                                                                        }
                     |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }            
                     ;
 
 TagDefault          :   beginTag                                        { 
                                                                             auxNumberSpaces = countInitialSpaces($1);
+                                                                            
+                                                                            auxInitialTag = tagWithSpaces($1, 1, 0, auxNumberSpaces);
+                                                                            initialTag = initialTagClose(listTags, auxInitialTag, auxNumberSpaces);
+
+                                                                            auxFinalTag = tagWithSpaces($1, 0, 0, auxNumberSpaces);
+                                                                            asprintf(&$$, "%s", auxInitialTag);
+                                                                        }   
+                    |   beginTag contentTag                             {
+                                                                            auxNumberSpaces = countInitialSpaces($1);
                                                                             auxInitialTag = tagWithSpaces($1, 1, 0, auxNumberSpaces);
                                                                             auxFinalTag = tagWithSpaces($1, 0, 0, auxNumberSpaces);
-                                                                            
-                                                                            listTags = insertTag(listTags, auxNumberSpaces, auxFinalTag);       
-
-                                                                            asprintf(&$$, "%s", auxInitialTag); 
-                                                                        }   
-                    |   beginTag contentTag                             { asprintf(&$$, "<%s>%s", $1, $2); }
+                                                                            asprintf(&$$, "%s%s", auxInitialTag, $2); 
+                                                                        }
                     |   beginTag '=' contentTag                         { asprintf(&$$, "<%s>%s", $1, $3); }
                     ;
 
@@ -68,9 +79,6 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                             auxNumberSpaces = countInitialSpaces($1);
                                                                             auxInitialTag = tagWithSpaces($1, 1, 1, auxNumberSpaces);
                                                                             auxFinalTag = tagWithSpaces($1, 0, 1, auxNumberSpaces);
-                                                                            
-                                                                            listTags = insertTag(listTags, auxNumberSpaces, auxFinalTag);       
-
                                                                             asprintf(&$$, "%s %s>", auxInitialTag, $2); 
                                                                         }   
                     |   beginTag AttributeHandler contentTag            { asprintf(&$$, "<%s %s>%s", $1, $2, $3); }
