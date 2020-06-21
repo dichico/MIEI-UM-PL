@@ -8,10 +8,8 @@ typedef struct tags
 } Tags;
 
 Tags *init();
-Tags *removeTags(Tags *listTags, int spaces);
-Tags *insertTag(Tags *listTags, int spaces, char *nameTag);
-void printFinalTags(Tags *listTags);
-char *initialTagClose(Tags *listTags, char *tag, int spaces);
-char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces);
+Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces);
 Tags *removeLastTag(Tags *listTags, int numberSpaces);
+char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces);
+void printFinalTags(Tags *listTags);
 void printTags(Tags *listTags);

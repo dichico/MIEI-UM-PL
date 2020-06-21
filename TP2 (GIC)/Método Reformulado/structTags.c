@@ -15,21 +15,21 @@ Tags *init()
 }
 
 // Insert New Tag into the Linked List
-Tags *insertTag(Tags *listTags, int spaces, char *nameTag)
+Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces)
 {
     Tags *newList = malloc(sizeof(struct tags));
 
     // Empty Linked List
     if (listTags == NULL)
     {
-        newList->numberSpaces = spaces;
+        newList->numberSpaces = numberSpaces;
         newList->name = nameTag;
         newList->next = NULL;
     }
     // Otherwise
     else
     {
-        newList->numberSpaces = spaces;
+        newList->numberSpaces = numberSpaces;
         newList->name = nameTag;
         newList->next = listTags;
     }
@@ -87,7 +87,6 @@ char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
         if (numberSpaces < newList->numberSpaces)
         {
             newTag = strdup(newList->name);
-
             newList = newList->next;
 
             while (newList && numberSpaces <= newList->numberSpaces)
