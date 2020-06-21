@@ -30,7 +30,7 @@
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing
-%type <stringValue> AttributeHandler Attributes
+%type <stringValue> AttributeHandler Attributes Attribute
 %type <stringValue> beginTag contentTag contentPipedTag contentAttributes
 
 %%
@@ -137,8 +137,13 @@ TagSelfClosing      :   beginTag '/'                                    { asprin
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
 
-Attributes          :   contentAttributes                               { asprintf(&$$, "%s", $1); }
+Attributes          :   Attributes ',' Attribute                         { asprintf(&$$, "%s, %s", $1, $3); }
+                    |   Attribute                                        { asprintf(&$$, "%s", $1); }
                     ;
+
+Attribute           :   contentAttributes                               { asprintf(&$$, "%s", $1); }
+                    ;
+
 
 %%
 

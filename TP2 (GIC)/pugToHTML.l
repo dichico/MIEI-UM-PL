@@ -22,7 +22,7 @@
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
 [ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
-[a-zA-Z0-9]+\=\".+\"/\)             { yylval.stringValue = strdup(yytext); return contentAttributes; }
+[a-zA-Z0-9]+\=\".+\"/[\)|\,]        { yylval.stringValue = strdup(yytext); return contentAttributes; }
 
 <CONTENTTAG>{
     [ ]+\"   ;

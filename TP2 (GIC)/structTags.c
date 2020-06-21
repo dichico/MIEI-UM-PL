@@ -51,7 +51,7 @@ Tags *removeLastTag(Tags *listTags, int numberSpaces)
         Tags *firstElement = listTags;
         Tags *newList = listTags->next;
 
-        if (numberSpaces < newList->numberSpaces)
+        if (numberSpaces <= newList->numberSpaces)
         {
             newList = newList->next;
 
@@ -84,7 +84,7 @@ char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
     {
         Tags *newList = listTags->next;
 
-        if (numberSpaces < newList->numberSpaces)
+        if (numberSpaces <= newList->numberSpaces)
         {
             newTag = strdup(newList->name);
             newList = newList->next;
