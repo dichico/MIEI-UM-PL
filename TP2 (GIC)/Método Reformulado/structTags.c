@@ -4,20 +4,6 @@
 
 #include "structTags.h"
 
-// Print all Tags into the Linked List
-void printTags(Tags *listTags)
-{
-
-    while (listTags)
-    {
-
-        printf("Tag Name: %s\n", listTags->name);
-        printf("Number Spaces: %i\n", listTags->numberSpaces);
-
-        listTags = listTags->next;
-    }
-}
-
 // Linked List Initialization Function
 Tags *init()
 {
@@ -26,20 +12,6 @@ Tags *init()
     listTags = NULL;
 
     return listTags;
-}
-
-Tags *removeTags(Tags *listTags, int spaces)
-{
-    Tags *newList = malloc(sizeof(struct tags));
-
-    while (listTags && spaces <= listTags->numberSpaces)
-    {
-        listTags = listTags->next;
-    }
-
-    newList = listTags;
-
-    return newList;
 }
 
 // Insert New Tag into the Linked List
@@ -57,8 +29,6 @@ Tags *insertTag(Tags *listTags, int spaces, char *nameTag)
     // Otherwise
     else
     {
-        listTags = removeTags(listTags, spaces);
-
         newList->numberSpaces = spaces;
         newList->name = nameTag;
         newList->next = listTags;
@@ -69,28 +39,74 @@ Tags *insertTag(Tags *listTags, int spaces, char *nameTag)
     return listTags;
 }
 
-char *initialTagClose(Tags *listTags, char *tag, int spaces)
+Tags *removeLastTag(Tags *listTags, int numberSpaces)
 {
-    char *tagFinal;
 
-    if (spaces < listTags->numberSpaces)
+    if (listTags->next == NULL)
     {
-
-        tagFinal = strdup(listTags->name);
-        listTags = listTags->next;
-
-        while (listTags && spaces <= listTags->numberSpaces)
-        {
-            strcat(tagFinal, "\n");
-            strcat(tagFinal, listTags->name);
-            listTags = listTags->next;
-        }
-
-        strcat(tagFinal, "\n");
-        strcat(tagFinal, tag);
+        return listTags;
     }
+    else
+    {
+        Tags *firstElement = listTags;
+        Tags *newList = listTags->next;
 
-    return tagFinal;
+        if (numberSpaces < newList->numberSpaces)
+        {
+            newList = newList->next;
+
+            while (newList && numberSpaces <= newList->numberSpaces)
+            {
+                newList = newList->next;
+            }
+
+            firstElement->next = newList;
+            listTags = firstElement;
+
+            return firstElement;
+        }
+        else
+        {
+            return listTags;
+        }
+    }
+}
+
+char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
+{
+    char *newTag;
+
+    if (listTags->next == NULL)
+    {
+        return initialTag;
+    }
+    else
+    {
+        Tags *newList = listTags->next;
+
+        if (numberSpaces < newList->numberSpaces)
+        {
+            newTag = strdup(newList->name);
+
+            newList = newList->next;
+
+            while (newList && numberSpaces <= newList->numberSpaces)
+            {
+                strcat(newTag, "\n");
+                strcat(newTag, strdup(newList->name));
+                newList = newList->next;
+            }
+
+            strcat(newTag, "\n");
+            strcat(newTag, strdup(initialTag));
+
+            return newTag;
+        }
+        else
+        {
+            return initialTag;
+        }
+    }
 }
 
 // Print all Tags into the Linked List
@@ -102,6 +118,20 @@ void printFinalTags(Tags *listTags)
     while (listTags)
     {
         printf("%s\n", listTags->name);
+        listTags = listTags->next;
+    }
+}
+
+// Print all Tags into the Linked List
+void printTags(Tags *listTags)
+{
+
+    while (listTags)
+    {
+
+        printf("Tag Name: %s\n", listTags->name);
+        printf("Number Spaces: %i\n", listTags->numberSpaces);
+
         listTags = listTags->next;
     }
 }
