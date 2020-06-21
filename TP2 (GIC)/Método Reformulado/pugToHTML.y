@@ -16,7 +16,7 @@
     int numberSpaces = 0;
     char *initialTag;
     char *finalTag;
-    char *auxnewInitialTag;
+    char *initialTagWithClosesTag;
 
     Tags *listTags;
 %}
@@ -62,10 +62,10 @@ TagDefault          :   beginTag                                        {
                                                                             finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s", auxnewInitialTag);
+                                                                            asprintf(&$$, "%s", initialTagWithClosesTag);
                                                                         }   
                     |   beginTag contentTag                             {
                                                                             numberSpaces = countInitialSpaces($1);
@@ -73,10 +73,10 @@ TagDefault          :   beginTag                                        {
                                                                             finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s%s", auxnewInitialTag, $2);
+                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $2);
                                                                         }
                     |   beginTag '=' contentTag                         {
                                                                             numberSpaces = countInitialSpaces($1);
@@ -84,10 +84,10 @@ TagDefault          :   beginTag                                        {
                                                                             finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces); 
                                                                             
-                                                                            asprintf(&$$, "%s%s", auxnewInitialTag, $3); 
+                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $3); 
                                                                         }
                     ;
 
@@ -97,10 +97,10 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                             finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s %s>", auxnewInitialTag, $2);
+                                                                            asprintf(&$$, "%s %s>", initialTagWithClosesTag, $2);
                                                                         }   
                     |   beginTag AttributeHandler contentTag            { 
                                                                             numberSpaces = countInitialSpaces($1);
@@ -108,10 +108,10 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                             finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
                                                                             
-                                                                            asprintf(&$$, "%s %s>%s", auxnewInitialTag, $2, $3); 
+                                                                            asprintf(&$$, "%s %s>%s", initialTagWithClosesTag, $2, $3); 
                                                                         }
                     |   beginTag AttributeHandler '=' contentTag        { 
                                                                             numberSpaces = countInitialSpaces($1);
@@ -119,10 +119,10 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                             finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            auxnewInitialTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s %s>%s", auxnewInitialTag, $2, $4); 
+                                                                            asprintf(&$$, "%s %s>%s", initialTagWithClosesTag, $2, $4); 
                                                                         }
                     ;
 

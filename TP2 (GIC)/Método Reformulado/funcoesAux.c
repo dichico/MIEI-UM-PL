@@ -26,7 +26,7 @@ char *tagWithSpaces(char *text, int initialOrFinal, int isAttribute, int numberS
     else
         tag = strdup("</");
 
-    // Not Zero Spaces
+    // At least One Space
     if (numberSpaces != 0)
     {
         spaces = strdup(" ");
