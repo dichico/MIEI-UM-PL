@@ -26,12 +26,12 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentPipedTag contentAttributes
+%token beginTag contentTag contentPipedTag nameAttribute valueAttribute
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped
 %type <stringValue> AttributeHandler Attributes Attribute
-%type <stringValue> beginTag contentTag contentPipedTag contentAttributes
+%type <stringValue> beginTag contentTag contentPipedTag nameAttribute valueAttribute
 
 %%
 
@@ -64,7 +64,7 @@ TagDefault          :   beginTag                                        {
 
                                                                             asprintf(&$$, "%s", initialTagWithClosesTag);
                                                                         }   
-                    |   beginTag contentTag                             {
+                    |   beginTag contentTag                             { 
                                                                             numberSpaces = countInitialSpaces($1);
                                                                             initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
                                                                             finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
@@ -155,11 +155,12 @@ TagPiped            :   beginTag contentPipedTag                        {
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
 
-Attributes          :   Attributes ',' Attribute                         { asprintf(&$$, "%s, %s", $1, $3); }
-                    |   Attribute                                        { asprintf(&$$, "%s", $1); }
+Attributes          :   Attributes ',' Attribute                        { asprintf(&$$, "%s, %s", $1, $3); }
+                    |   Attributes ' ' Attribute                        { asprintf(&$$, "%s %s", $1, $3); }
+                    |   Attribute                                       { asprintf(&$$, "%s", $1); }   
                     ;
 
-Attribute           :   contentAttributes                               { asprintf(&$$, "%s", $1); }
+Attribute           :   nameAttribute valueAttribute                 { printf("Inicio - %s, Content - %s\n", $1, $2); asprintf(&$$, "%s\"%s\"", $1, $2); }
                     ;
 
 

@@ -7,7 +7,7 @@
 
 %option yylineno
 
-%x CONTENTTAG CONTENTPIPEDTAG PIPEDTEXT
+%x CONTENTTAG CONTENTATTRIBUTE ATTRIBUTETEXT CONTENTPIPEDTAG PIPEDTEXT
 
 %%
 
@@ -16,18 +16,29 @@
 \(                                  return *yytext;
 \)                                  return *yytext;
 \/                                  return *yytext;
-\"                                  return *yytext;
+\'                                  return *yytext;
 \,                                  return *yytext;
 \=                                  { BEGIN CONTENTTAG; return *yytext; }
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
 [ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
-[a-zA-Z0-9]+\=\".+\"/[\)|\,]        { yylval.stringValue = strdup(yytext); return contentAttributes; }
-\n[ ]+/\|                           {  pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
+[ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return beginAttribute; }
+\n[ ]+/\|                           { pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
+
+<CONTENTATTRIBUTE>{
+    \'                              { BEGIN ATTRIBUTETEXT; }
+    \"                              { BEGIN ATTRIBUTETEXT; }
+}
+
+<ATTRIBUTETEXT>{
+    [^\'\"]*[\'|\"]/\)              { yytext[strlen(yytext)-1]='\0';  yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
+    [^\'\"]*[\'|\"]/\,              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
+    [^\'\"]*[\'|\"]/[ ]             { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
+}
 
 <CONTENTTAG>{
-    [ ]+\"                          ;
-    [^\"]*                          { yylval.stringValue = strdup(yytext); return contentTag; }
+    [ ]+\'                          ;
+    [^\']*                          { yylval.stringValue = strdup(yytext); return contentTag; }
     .                               BEGIN INITIAL;
 }
 
@@ -38,7 +49,6 @@
 
 <PIPEDTEXT>{
     [^\ ].*/\n[ ]+\|                { 
-                                        strcat(pipedText, " "); 
                                         strcat(pipedText, yytext); 
                                         BEGIN CONTENTPIPEDTAG; 
                                     }                            
