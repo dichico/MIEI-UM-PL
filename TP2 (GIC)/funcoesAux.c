@@ -16,7 +16,7 @@ int countInitialSpaces(char *text)
     }
 }
 
-char *tagWithSpaces(char *text, int initialOrFinal, int isAttribute, int numberSpaces)
+char *tagWithSpaces(char *text, int initialOrFinal, int typeTag, int numberSpaces)
 {
     char *tag;
     char *spaces;
@@ -39,9 +39,14 @@ char *tagWithSpaces(char *text, int initialOrFinal, int isAttribute, int numberS
             {
                 strcat(tag, &text[i]);
 
-                if (!isAttribute || (isAttribute && initialOrFinal == isFinal))
+                if (typeTag == defaultTag || (typeTag == attributeTag && initialOrFinal == isFinal))
                 {
                     strcat(tag, ">");
+                    return strcat(spaces, tag);
+                }
+                else if (typeTag == selfClosingTag)
+                {
+                    strcat(tag, "/>");
                     return strcat(spaces, tag);
                 }
                 else
@@ -54,11 +59,16 @@ char *tagWithSpaces(char *text, int initialOrFinal, int isAttribute, int numberS
     // Zero Spaces
     else
     {
-        if (!isAttribute || (isAttribute && initialOrFinal == isFinal))
+        if (typeTag == defaultTag || (typeTag == attributeTag && initialOrFinal == isFinal))
         {
             strcat(tag, text);
             strcat(tag, ">");
             return tag;
+        }
+        else if (typeTag == selfClosingTag)
+        {
+            strcat(tag, "/>");
+            return strcat(spaces, tag);
         }
         else
         {

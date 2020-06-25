@@ -29,7 +29,7 @@
 %token beginTag contentTag contentPipedTag contentAttributes
 
 %type <stringValue> ContentPugFile
-%type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing
+%type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped
 %type <stringValue> AttributeHandler Attributes Attribute
 %type <stringValue> beginTag contentTag contentPipedTag contentAttributes
 
@@ -47,19 +47,16 @@ Tags                :   Tag '\n' Tags                                   { asprin
                     |   Tag                                             { asprintf(&$$, "%s", $1); }
                     ;
 
-Tag                 :   TagDefault                                      { 
-                                                                            asprintf(&$$, "%s", $1); 
-                                                                        }
-                    |   TagAttribute                                    { 
-                                                                            asprintf(&$$, "%s", $1); 
-                                                                        }
-                    |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }            
+Tag                 :   TagDefault                                      { asprintf(&$$, "%s", $1); }
+                    |   TagAttribute                                    { asprintf(&$$, "%s", $1); }
+                    |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }
+                    |   TagPiped                                        { asprintf(&$$, "%s", $1); }
                     ;
 
 TagDefault          :   beginTag                                        { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 0, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -69,8 +66,8 @@ TagDefault          :   beginTag                                        {
                                                                         }   
                     |   beginTag contentTag                             {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 0, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -80,8 +77,8 @@ TagDefault          :   beginTag                                        {
                                                                         }
                     |   beginTag '=' contentTag                         {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 0, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 0, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -93,8 +90,8 @@ TagDefault          :   beginTag                                        {
 
 TagAttribute        :   beginTag AttributeHandler                       { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 1, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -104,8 +101,8 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                         }   
                     |   beginTag AttributeHandler contentTag            { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 1, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -115,8 +112,8 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                         }
                     |   beginTag AttributeHandler '=' contentTag        { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 1, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 1, numberSpaces);
+                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
                                                                             listTags = insertTag(listTags, finalTag, numberSpaces);
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
@@ -126,12 +123,33 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                         }
                     ;
 
-TagSelfClosing      :   beginTag '/'                                    { asprintf(&$$, "<%s />", $1); }
+TagSelfClosing      :   beginTag '/'                                    { 
+                                                                            numberSpaces = countInitialSpaces($1);
+                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
+                                                                            
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            
+                                                                            asprintf(&$$, "%s", initialTagWithClosesTag); 
+                                                                        }
                     |   beginTag '/' contentTag                         { asprintf(&$$, "<%s />%s", $1, $3); }
                     |   beginTag '/' '=' contentTag                     { asprintf(&$$, "<%s />%s", $1, $4); }
                     |   beginTag AttributeHandler '/'                   { asprintf(&$$, "<%s %s />", $1, $2); }
                     |   beginTag AttributeHandler '/' contentTag        { asprintf(&$$, "<%s %s />%s", $1, $2, $4); }
                     |   beginTag AttributeHandler '/' '=' contentTag    { asprintf(&$$, "<%s %s />%s", $1, $2, $5); }
+                    ;
+
+TagPiped            :   beginTag contentPipedTag                        { 
+                                                                            numberSpaces = countInitialSpaces($1);
+                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
+
+                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            listTags = removeLastTag(listTags, numberSpaces);
+
+                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $2); 
+                                                                        }
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
