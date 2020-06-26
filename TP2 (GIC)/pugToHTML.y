@@ -155,12 +155,12 @@ TagPiped            :   beginTag contentPipedTag                        {
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
 
-Attributes          :   Attributes ',' Attribute                        { asprintf(&$$, "%s, %s", $1, $3); }
-                    |   Attributes ' ' Attribute                        { asprintf(&$$, "%s %s", $1, $3); }
+Attributes          :   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
+                    |   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
                     |   Attribute                                       { asprintf(&$$, "%s", $1); }   
                     ;
 
-Attribute           :   nameAttribute valueAttribute                 { printf("Inicio - %s, Content - %s\n", $1, $2); asprintf(&$$, "%s\"%s\"", $1, $2); }
+Attribute           :   nameAttribute valueAttribute                    { asprintf(&$$, "%s\"%s\"", $1, $2); }
                     ;
 
 

@@ -22,18 +22,19 @@
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
 [ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
-[ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return beginAttribute; }
+[ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
 \n[ ]+/\|                           { pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
 
 <CONTENTATTRIBUTE>{
     \'                              { BEGIN ATTRIBUTETEXT; }
     \"                              { BEGIN ATTRIBUTETEXT; }
+    \,[ ]+|[ ]+                     { BEGIN INITIAL; }
 }
 
 <ATTRIBUTETEXT>{
-    [^\'\"]*[\'|\"]/\)              { yytext[strlen(yytext)-1]='\0';  yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
-    [^\'\"]*[\'|\"]/\,              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
-    [^\'\"]*[\'|\"]/[ ]             { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return contentAttribute; }
+    [^\'\"]*[\'|\"]/\)              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return valueAttribute; }
+    [^\'\"]*[\'|\"]/\,              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return valueAttribute; }
+    [^\'\"]*[\'|\"]/[ ]+            { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return valueAttribute; }
 }
 
 <CONTENTTAG>{
