@@ -156,7 +156,6 @@ AttributeHandler    :   '(' Attributes ')'                              { asprin
                     ;
 
 Attributes          :   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
-                    |   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
                     |   Attribute                                       { asprintf(&$$, "%s", $1); }   
                     ;
 

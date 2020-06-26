@@ -7,7 +7,7 @@
 
 %option yylineno
 
-%x CONTENTTAG CONTENTATTRIBUTE ATTRIBUTETEXT CONTENTPIPEDTAG PIPEDTEXT
+%x CONTENTTAG TAGTEXT CONTENTATTRIBUTE ATTRIBUTETEXT CONTENTPIPEDTAG PIPEDTEXT
 
 %%
 
@@ -38,9 +38,12 @@
 }
 
 <CONTENTTAG>{
-    [ ]+\'                          ;
-    [^\']*                          { yylval.stringValue = strdup(yytext); return contentTag; }
-    .                               BEGIN INITIAL;
+    [ ]+[\'|\"]                     { BEGIN TAGTEXT; }
+}
+
+<TAGTEXT>{
+    [^\'\"]*                        { yylval.stringValue = strdup(yytext); return contentTag; }
+    .                               { BEGIN INITIAL; }
 }
 
 <CONTENTPIPEDTAG>{
