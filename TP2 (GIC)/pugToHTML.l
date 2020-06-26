@@ -21,7 +21,7 @@
 \=                                  { BEGIN CONTENTTAG; return *yytext; }
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
-[ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
+[ ][^\ ].*                          { yylval.stringValue = strdup(yytext+1); return contentTag; }
 [ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
 \n[ ]+/\|                           { pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
 

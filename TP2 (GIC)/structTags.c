@@ -72,6 +72,11 @@ Tags *removeLastTag(Tags *listTags, int numberSpaces)
     }
 }
 
+char *removeFirstTag(Tags *listTags)
+{
+    return listTags->next;
+}
+
 char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
 {
     char *newTag;
