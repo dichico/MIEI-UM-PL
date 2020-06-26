@@ -2,12 +2,13 @@
     #include "y.tab.h"
 
     char *pipedText = "";
+    char *classDivText = "";
     char *spacesPipedText;
 %}
 
 %option yylineno
 
-%x CONTENTTAG TAGTEXT CONTENTATTRIBUTE ATTRIBUTETEXT CONTENTPIPEDTAG PIPEDTEXT
+%x CONTENTTAG TAGTEXT CONTENTATTRIBUTE ATTRIBUTETEXT CONTENTPIPEDTAG PIPEDTEXT CONTENTDIV CLASSDIV
 
 %%
 
@@ -22,8 +23,10 @@
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
 [ ][^\ ].*                          { yylval.stringValue = strdup(yytext+1); return contentTag; }
-[ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
 \n[ ]+/\|                           { pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
+^[ ]*\#                             { classDivText = malloc(sizeof(char*)); yylval.stringValue = strdup(yytext); BEGIN CONTENTDIV; }
+^[ ]*/\.                            { classDivText = malloc(sizeof(char*)); yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; }
+[ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
 
 <CONTENTATTRIBUTE>{
     \'                              { BEGIN ATTRIBUTETEXT; }
@@ -65,6 +68,16 @@
                                         BEGIN INITIAL; 
                                         return contentPipedTag; 
                                     }
+}
+
+<CONTENTDIV>{
+    [^\.]*/\.                       { yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return idDiv; }
+    [^\.\n]*                        { yylval.stringValue = strdup(yytext); BEGIN INITIAL; return idDiv; }
+}
+
+<CLASSDIV>{
+    \.[^\.]*/\.                     { strcat(classDivText, yytext+1); yylval.stringValue = strdup(classDivText); BEGIN CLASSDIV;  }
+    \.[^\.\n]*                      { strcat(classDivText, " "); strcat(classDivText, yytext+1); yylval.stringValue = strdup(classDivText); BEGIN INITIAL; return classDiv; }
 }
 
 %%

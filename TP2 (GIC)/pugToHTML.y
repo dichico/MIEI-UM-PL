@@ -26,12 +26,12 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentPipedTag nameAttribute valueAttribute
+%token beginTag contentTag contentPipedTag idDiv classDiv nameAttribute valueAttribute
 
 %type <stringValue> ContentPugFile
-%type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped
+%type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped TagDiv
 %type <stringValue> AttributeHandler Attributes Attribute
-%type <stringValue> beginTag contentTag contentPipedTag nameAttribute valueAttribute
+%type <stringValue> beginTag contentTag contentPipedTag idDiv classDiv nameAttribute valueAttribute
 
 %%
 
@@ -52,6 +52,7 @@ Tag                 :   TagDefault                                      { asprin
                     |   TagAttribute                                    { asprintf(&$$, "%s", $1); }
                     |   TagSelfClosing                                  { asprintf(&$$, "%s", $1); }
                     |   TagPiped                                        { asprintf(&$$, "%s", $1); }
+                    |   TagDiv                                          { asprintf(&$$, "%s", $1); }
                     ;
 
 TagDefault          :   beginTag                                        { 
@@ -226,6 +227,13 @@ TagPiped            :   beginTag contentPipedTag                        {
 
                                                                             asprintf(&$$, "%s%s", initialTagWithClosesTag, $2); 
                                                                         }
+                    ;
+
+TagDiv              :   idDiv classDiv                                  {
+                                                                            asprintf(&$$, "%s id=\"%s\" class=\"%s\">", initialTagWithClosesTag, $1, $2); 
+                                                                        }
+                    |   idDiv                                           { asprintf(&$$, "<div id=\"%s\">", $1); }
+                    |   classDiv                                        { asprintf(&$$, "<div class=\"%s\">", $1); }
                     ;
 
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
