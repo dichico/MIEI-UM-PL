@@ -5,5 +5,6 @@
 #define attributeTag 3
 #define selfClosingTag 4
 
+int isAutoSelfClosing(char *text);
 int countInitialSpaces(char *text);
 char *tagWithSpaces(char *text, int initialOrFinal, int isAtributte, int numberSpaces);

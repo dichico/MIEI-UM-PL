@@ -30,7 +30,7 @@
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
 [ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
 [ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
-[ ]*\n[ ]+/\|                       { pipedText = (char*) malloc(100); sizePipedText = 100; BEGIN CONTENTPIPEDTAG; }
+\n[ ]+/\|                           { pipedText = (char*) malloc(100); sizePipedText = 100; BEGIN CONTENTPIPEDTAG; }
 ^[ ]*/\#                            { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN CONTENTDIV; return beginDiv; }
 ^[ ]*/\.                            { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
 

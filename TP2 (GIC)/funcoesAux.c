@@ -3,6 +3,14 @@
 
 #include "funcoesAux.h"
 
+int isAutoSelfClosing(char *text)
+{
+    if (strstr(text, "img") != NULL || strstr(text, "link") != NULL || strstr(text, "meta") != NULL)
+        return 1;
+    else
+        return 0;
+}
+
 int countInitialSpaces(char *text)
 {
     int numberSpaces = 0;
