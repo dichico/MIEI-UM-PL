@@ -1,8 +1,14 @@
 %{
     #include "y.tab.h"
 
-    char *pipedText = "";
-    char *classDivText = "";
+    char *pipedText;
+    char *auxPipedText;
+    int sizePipedText;
+
+    char *classDivText;
+    char *auxClassDivText;
+    int sizeClassDivText;
+
     char *spacesPipedText;
 %}
 
@@ -22,11 +28,11 @@
 \=                                  { BEGIN CONTENTTAG; return *yytext; }
 
 ^[ ]*[a-zA-Z0-9]+                   { yylval.stringValue = strdup(yytext); return beginTag; }
-[ ][^\ ].*                          { yylval.stringValue = strdup(yytext+1); return contentTag; }
-\n[ ]+/\|                           { pipedText = malloc(sizeof(char*)); BEGIN CONTENTPIPEDTAG; }
-^[ ]*\#                             { classDivText = malloc(sizeof(char*)); yylval.stringValue = strdup(yytext); BEGIN CONTENTDIV; }
-^[ ]*/\.                            { classDivText = malloc(sizeof(char*)); yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; }
+[ ][^\ ].*                          { yylval.stringValue = strdup(yytext); return contentTag; }
 [ ]*[a-zA-Z]+\=/[\'|\"]             { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
+[ ]*\n[ ]+/\|                       { pipedText = (char*) malloc(100); sizePipedText = 100; BEGIN CONTENTPIPEDTAG; }
+^[ ]*/\#                            { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN CONTENTDIV; return beginDiv; }
+^[ ]*/\.                            { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
 
 <CONTENTATTRIBUTE>{
     \'                              { BEGIN ATTRIBUTETEXT; }
@@ -41,12 +47,9 @@
 }
 
 <CONTENTTAG>{
-    [ ]+[\'|\"]                     { BEGIN TAGTEXT; }
-}
-
-<TAGTEXT>{
+    [ ]+[\'|\"]                     ;
     [^\'\"]*                        { yylval.stringValue = strdup(yytext); return contentTag; }
-    .                               { BEGIN INITIAL; }
+    .                               BEGIN INITIAL;
 }
 
 <CONTENTPIPEDTAG>{
@@ -55,13 +58,21 @@
 } 
 
 <PIPEDTEXT>{
-    [^\ ].*/\n[ ]+\|                { 
-                                        strcat(pipedText, yytext); 
+    [^\ ].*/\n[ ]+\|                {
+                                        sizePipedText += 100;
+                                        auxPipedText = realloc(pipedText, sizePipedText);
+                                        
+                                        strcat(auxPipedText, yytext);
+                                        pipedText = auxPipedText;
                                         BEGIN CONTENTPIPEDTAG; 
                                     }                            
-    [^\ ].*                         { 
-                                        strcat(pipedText, " "); 
-                                        strcat(pipedText, yytext);  
+    [^\ ].*                         {
+                                        sizePipedText += 100;
+                                        auxPipedText = realloc(pipedText, sizePipedText);
+
+                                        strcat(auxPipedText, " "); 
+                                        strcat(auxPipedText, yytext);  
+                                        pipedText = auxPipedText; 
                                         
                                         yylval.stringValue = strdup(pipedText); 
                                         
@@ -71,13 +82,35 @@
 }
 
 <CONTENTDIV>{
-    [^\.]*/\.                       { yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return idDiv; }
-    [^\.\n]*                        { yylval.stringValue = strdup(yytext); BEGIN INITIAL; return idDiv; }
+    [\#][^\.]*/\.                   { yylval.stringValue = strdup(yytext+1); BEGIN CLASSDIV; return idDiv; }
+    [^\.\n]*                        { yylval.stringValue = strdup(yytext+1); BEGIN INITIAL; return idDiv; }
 }
 
 <CLASSDIV>{
-    \.[^\.]*/\.                     { strcat(classDivText, yytext+1); yylval.stringValue = strdup(classDivText); BEGIN CLASSDIV;  }
-    \.[^\.\n]*                      { strcat(classDivText, " "); strcat(classDivText, yytext+1); yylval.stringValue = strdup(classDivText); BEGIN INITIAL; return classDiv; }
+    \.[^\.\n]*/\.                   {
+                                        sizeClassDivText += 100;
+                                        auxClassDivText = realloc(classDivText, sizeClassDivText);
+
+                                        strcat(auxClassDivText, yytext+1);
+                                        classDivText = auxClassDivText;
+
+                                        yylval.stringValue = strdup(classDivText);
+
+                                        BEGIN CLASSDIV;  
+                                    }
+    \.[^\.\n]*                      {
+                                        sizeClassDivText += 100;
+                                        auxClassDivText = realloc(classDivText, sizeClassDivText);
+
+                                        strcat(auxClassDivText, " "); 
+                                        strcat(auxClassDivText, yytext+1);
+                                        classDivText = auxClassDivText;
+
+                                        yylval.stringValue = strdup(classDivText);
+
+                                        BEGIN INITIAL; 
+                                        return classDiv; 
+                                    }
 }
 
 %%

@@ -10,7 +10,6 @@ typedef struct tags
 Tags *init();
 Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces);
 Tags *removeLastTag(Tags *listTags, int numberSpaces);
-char *removeFirstTag(Tags *listTags);
 char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces);
 void printFinalTags(Tags *listTags);
 void printTags(Tags *listTags);

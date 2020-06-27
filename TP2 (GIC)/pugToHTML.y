@@ -17,6 +17,7 @@
     char *initialTag;
     char *finalTag;
     char *initialTagWithClosesTag;
+    char *tagDiv;
 
     Tags *listTags;
 %}
@@ -26,12 +27,12 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentPipedTag idDiv classDiv nameAttribute valueAttribute
+%token beginTag contentTag contentPipedTag beginDiv idDiv classDiv nameAttribute valueAttribute
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped TagDiv
 %type <stringValue> AttributeHandler Attributes Attribute
-%type <stringValue> beginTag contentTag contentPipedTag idDiv classDiv nameAttribute valueAttribute
+%type <stringValue> beginTag contentTag contentPipedTag beginDiv idDiv classDiv nameAttribute valueAttribute
 
 %%
 
@@ -39,7 +40,6 @@ FicheiroPug         :   ContentPugFile                                  {
                                                                             printf("%s", $1);
                                                                             printFinalTags(listTags);
                                                                         }
-                        ;
 
 ContentPugFile      :   Tags                                            { asprintf(&$$, "%s", $1); }
                     ;
@@ -114,7 +114,6 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                         }
                     |   beginTag AttributeHandler '=' contentTag        { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            
                                                                             initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
                                                                             finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
@@ -128,92 +127,18 @@ TagAttribute        :   beginTag AttributeHandler                       {
 
 TagSelfClosing      :   beginTag '/'                                    { 
                                                                             numberSpaces = countInitialSpaces($1);
-
                                                                             initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
+                                                                            
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
-
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
+                                                                            
                                                                             asprintf(&$$, "%s", initialTagWithClosesTag); 
                                                                         }
-                    |   beginTag '/' contentTag                         {
-                                                                            numberSpaces = countInitialSpaces($1);
-
-                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
-                                                                            printf("Teste %s", initialTag);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
-                                                                            
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $3); 
-                                                                        }
-                    |   beginTag '/' '=' contentTag                     { 
-                                                                            numberSpaces = countInitialSpaces($1);
-
-                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
-                                                                            printf("Teste %s", initialTag);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
-                                                                            
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $4); 
-                                                                        }
-                    |   beginTag AttributeHandler '/'                   { 
-                                                                            numberSpaces = countInitialSpaces($1);
-
-                                                                            initialTag = tagWithSpaces($1, 1, 5, numberSpaces);
-                                                                            printf("Teste %s", initialTag);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
-                                                                            
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
-                                                                            asprintf(&$$, "%s %s/>", initialTagWithClosesTag, $2); 
-                                                                        }
-                    |   beginTag AttributeHandler '/' contentTag        {
-                                                                            numberSpaces = countInitialSpaces($1);
-
-                                                                            initialTag = tagWithSpaces($1, 1, 5, numberSpaces);
-                                                                            printf("Teste %s", initialTag);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
-                                                                            
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
-                                                                            asprintf(&$$, "%s %s/>%s", initialTagWithClosesTag, $2, $4);                                                                         }
-                    |   beginTag AttributeHandler '/' '=' contentTag    { 
-                                                                            numberSpaces = countInitialSpaces($1);
-
-                                                                            initialTag = tagWithSpaces($1, 1, 5, numberSpaces);
-                                                                            printf("Teste %s", initialTag);
-
-                                                                            listTags = insertTag(listTags, initialTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
-                                                                            
-                                                                            // Remove-se depois da Lista dado que não vai ser mais para fechar
-                                                                            listTags = removeFirstTag(listTags);
-
-                                                                            asprintf(&$$, "%s %s/>%s", initialTagWithClosesTag, $2, $5); 
-                                                                        }
+                    |   beginTag '/' contentTag                         { asprintf(&$$, "<%s />%s", $1, $3); }
+                    |   beginTag '/' '=' contentTag                     { asprintf(&$$, "<%s />%s", $1, $4); }
+                    |   beginTag AttributeHandler '/'                   { asprintf(&$$, "<%s %s />", $1, $2); }
+                    |   beginTag AttributeHandler '/' contentTag        { asprintf(&$$, "<%s %s />%s", $1, $2, $4); }
+                    |   beginTag AttributeHandler '/' '=' contentTag    { asprintf(&$$, "<%s %s />%s", $1, $2, $5); }
                     ;
 
 TagPiped            :   beginTag contentPipedTag                        { 
@@ -229,17 +154,55 @@ TagPiped            :   beginTag contentPipedTag                        {
                                                                         }
                     ;
 
-TagDiv              :   idDiv classDiv                                  {
-                                                                            asprintf(&$$, "%s id=\"%s\" class=\"%s\">", initialTagWithClosesTag, $1, $2); 
+TagDiv              : beginDiv idDiv classDiv                           {
+                                                                            tagDiv = strdup($1);
+                                                                            strcat(tagDiv, "div");
+
+                                                                            numberSpaces = countInitialSpaces(tagDiv);
+                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            
+                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            listTags = removeLastTag(listTags, numberSpaces);
+
+                                                                            asprintf(&$$, "%s id=\"%s\" class=\"%s\">", initialTagWithClosesTag, $2, $3);                                                                            
                                                                         }
-                    |   idDiv                                           { asprintf(&$$, "<div id=\"%s\">", $1); }
-                    |   classDiv                                        { asprintf(&$$, "<div class=\"%s\">", $1); }
-                    ;
+                    |   beginDiv idDiv                                  { 
+                                                                            tagDiv = strdup($1);
+                                                                            strcat(tagDiv, "div");
+
+                                                                            numberSpaces = countInitialSpaces(tagDiv);
+                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            
+                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            listTags = removeLastTag(listTags, numberSpaces);
+
+                                                                            asprintf(&$$, "%s id=\"%s\">", initialTagWithClosesTag, $2);                                                                           
+                                                                        }
+                    |   beginDiv classDiv                               {
+                                                                            tagDiv = strdup($1);
+                                                                            strcat(tagDiv, "div");
+
+                                                                            numberSpaces = countInitialSpaces(tagDiv);
+                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            
+                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
+                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
+                                                                            listTags = removeLastTag(listTags, numberSpaces);
+
+                                                                            asprintf(&$$, "%s class=\"%s\">", initialTagWithClosesTag, $2);
+                                                                        }
+
 
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
 
 Attributes          :   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
+                    |   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
                     |   Attribute                                       { asprintf(&$$, "%s", $1); }   
                     ;
 
