@@ -25,33 +25,33 @@
 
 %%
 
-[ ]                                 ;
-\n                                  return *yytext;
-\(                                  return *yytext;
-\)                                  return *yytext;
-\/                                  return *yytext;
-\'                                  return *yytext;
-\,                                  return *yytext;
-\=                                  { BEGIN CONTENTTAG; return *yytext; } /* Conteúdo da Tag está entre aspas seguido do caracter '='. */
+[ ]                             ;
+\n                              return *yytext;
+\(                              return *yytext;
+\)                              return *yytext;
+\/                              return *yytext;
+\'                              return *yytext;
+\,                              return *yytext;
+\=                              { BEGIN CONTENTTAG; return *yytext; } /* Conteúdo da Tag está entre aspas seguido do caracter '='. */
 
     /* Expressão Regular para extrair o Início da maioria das Tags. */
-    ^[ ]*[a-zA-Z0-9]+               { yylval.stringValue = strdup(yytext); return beginTag; }
+^[ ]*[a-zA-Z0-9]+               { yylval.stringValue = strdup(yytext); return beginTag; }
     
     /* Expressão Regular para extrair o Conteúdo da maioria das Tags. */
     /* Assume-se que o Pug está bem escrito. Início da Tag separado de um espaço relativamente ao Conteúdo em si. */
-    [ ][^\ ].*                      { yylval.stringValue = strdup(yytext+1); return contentTag; }
+[ ][^\ ].*                      { yylval.stringValue = strdup(yytext+1); return contentTag; }
     
     /* Expressão Regular para extrair o Nome de um Atributo e começar a extração do Conteúdo em si. */
-    [ ]*[a-zA-Z]+\=/[\'|\"]         { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
+[ ]*[a-zA-Z]+\=/[\'|\"]         { yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return nameAttribute; }
 
     /* Expressão Regular para começar a extração de todo o Conteúdo de um Piped Text. */
-    \n[ ]+/\|                       { pipedText = (char*) malloc(100); sizePipedText = 100; BEGIN CONTENTPIPEDTAG; }
+\n[ ]+/\|                       { pipedText = (char*) malloc(100); sizePipedText = 100; BEGIN CONTENTPIPEDTAG; }
 
     /* Expressões Regulares para começar a extração do valor do Id e da Class de qualquer Div. */
     /* Primeira expressão para quando o div possui um Id. */
     /* Segunda expressão para quando o div não possui um Id. */
-    ^[ ]*/\#                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN IDENTIFIERDIV; return beginDiv; }
-    ^[ ]*/\.                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
+^[ ]*/\#                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN IDENTIFIERDIV; return beginDiv; }
+^[ ]*/\.                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
 
     /* Start Condition para extrair o Conteúdo que está entre aspas seguido do caracter '=' e um espaço. */
     /* Assume-se que possam ser as plicas e as aspas normais. */
