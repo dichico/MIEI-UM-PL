@@ -39,6 +39,10 @@ Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces)
     return listTags;
 }
 
+Tags *removeFirstTag(Tags *listTags){
+    return listTags->next;
+}
+
 Tags *removeLastTag(Tags *listTags, int numberSpaces)
 {
 
