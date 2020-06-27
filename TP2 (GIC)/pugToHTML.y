@@ -40,6 +40,7 @@ FicheiroPug         :   ContentPugFile                                  {
                                                                             printf("%s", $1);
                                                                             printFinalTags(listTags);
                                                                         }
+                    ;
 
 ContentPugFile      :   Tags                                            { asprintf(&$$, "%s", $1); }
                     ;
@@ -274,7 +275,7 @@ TagDiv              : beginDiv idDiv classDiv                           {
 
                                                                             asprintf(&$$, "%s class=\"%s\">", initialTagWithClosesTag, $2);
                                                                         }
-
+                    ;
 
 AttributeHandler    :   '(' Attributes ')'                              { asprintf(&$$, "%s", $2); }
                     ;
@@ -286,7 +287,6 @@ Attributes          :   Attributes Attribute                            { asprin
 
 Attribute           :   nameAttribute valueAttribute                    { asprintf(&$$, "%s\"%s\"", $1, $2); }
                     ;
-
 
 %%
 
