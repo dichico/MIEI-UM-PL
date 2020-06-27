@@ -54,7 +54,7 @@ char *tagWithSpaces(char *text, int initialOrFinal, int typeTag, int numberSpace
                 }
                 else if (typeTag == selfClosingTag)
                 {
-                    strcat(tag, "/>");
+                    strcat(tag, " />");
                     return strcat(spaces, tag);
                 }
                 else

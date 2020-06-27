@@ -109,7 +109,7 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                                 initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                                 listTags = removeLastTag(listTags, numberSpaces);
                                                                                 
-                                                                                asprintf(&$$, "%s %s/>", initialTagWithClosesTag, $2); 
+                                                                                asprintf(&$$, "%s %s />", initialTagWithClosesTag, $2); 
                                                                             }
                                                                             else{ 
                                                                                 numberSpaces = countInitialSpaces($1);
@@ -181,7 +181,7 @@ TagSelfClosing      :   beginTag '/'                                    {
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
                                                                             
-                                                                            asprintf(&$$, "%s %s/>", initialTagWithClosesTag, $2); 
+                                                                            asprintf(&$$, "%s %s />", initialTagWithClosesTag, $2); 
                                                                         }
                     |   beginTag AttributeHandler '/' contentTag        {
                                                                             numberSpaces = countInitialSpaces($1);
@@ -190,7 +190,7 @@ TagSelfClosing      :   beginTag '/'                                    {
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
                                                                             
-                                                                            asprintf(&$$, "%s %s/>%s", initialTagWithClosesTag, $2, $4); 
+                                                                            asprintf(&$$, "%s %s />%s", initialTagWithClosesTag, $2, $4); 
                                                                         }
                     |   beginTag AttributeHandler '/' '=' contentTag    {
                                                                             numberSpaces = countInitialSpaces($1);
@@ -199,7 +199,7 @@ TagSelfClosing      :   beginTag '/'                                    {
                                                                             initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
                                                                             listTags = removeLastTag(listTags, numberSpaces);
                                                                             
-                                                                            asprintf(&$$, "%s %s/>%s", initialTagWithClosesTag, $2, $5); 
+                                                                            asprintf(&$$, "%s %s />%s", initialTagWithClosesTag, $2, $5); 
                                                                         }
                     ;
 
