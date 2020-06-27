@@ -58,7 +58,7 @@
 <CONTENTTAG>{
     [ ]+[\'|\"]                     ;
     [^\'\"]*                        { yylval.stringValue = strdup(yytext); return contentTag; }
-    .                               BEGIN INITIAL;
+    .                               { BEGIN INITIAL; }
 }
 
     /* Start Condition para iniciar a extração do Conteúdo de um Atributo que está entre aspas seguido do caracter '='. */
@@ -75,9 +75,30 @@
     /* Segund expressão é para quando se deteta o caractér ' '. Volta-se à SC anterior para começar um novo atributo. */
     /* Terceira expressão é para quando se deteta o caractér ')'. Sai-se da SC dado que não há mais atributos. */
 <ATTRIBUTETEXT>{
-    [^\'\"]*[\'|\"]/\,              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return valueAttribute; }
-    [^\'\"]*[\'|\"]/[ ]+            { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN CONTENTATTRIBUTE; return valueAttribute; }
-    [^\'\"]*[\'|\"]/\)              { yytext[strlen(yytext)-1]='\0'; yylval.stringValue = strdup(yytext); BEGIN INITIAL; return valueAttribute; }
+    [^\'\"]*[\'|\"]/\,              { 
+                                        yytext[strlen(yytext)-1]='\0'; // Para não levar a plica/aspa no yytext.
+                                        
+                                        yylval.stringValue = strdup(yytext); 
+                                        
+                                        BEGIN CONTENTATTRIBUTE; 
+                                        return valueAttribute; 
+                                    }
+    [^\'\"]*[\'|\"]/[ ]+            { 
+                                        yytext[strlen(yytext)-1]='\0'; // Para não levar a plica/aspa no yytext.
+                                        
+                                        yylval.stringValue = strdup(yytext); 
+                                        
+                                        BEGIN CONTENTATTRIBUTE; 
+                                        return valueAttribute; 
+                                    }
+    [^\'\"]*[\'|\"]/\)              { 
+                                        yytext[strlen(yytext)-1]='\0'; // Para não levar a plica/aspa no yytext.
+
+                                        yylval.stringValue = strdup(yytext); 
+                                        
+                                        BEGIN INITIAL; 
+                                        return valueAttribute; 
+                                    }
 }
 
     /* Start Condition para iniciar a extração do Conteúdo de um Piped Text. */
@@ -121,8 +142,17 @@
     /* Primeira expressão é para quando existe Class depois do ID. Começa-se SC seguinte para começar a extrair os valores da Class. */
     /* Segunda expressão é para quando não existe Class depois do ID. Volta-se ao início para se continuar o parse de novas Tags. */
 <IDENTIFIERDIV>{
-    [\#][^\.]*/\.                   { yylval.stringValue = strdup(yytext+1); BEGIN CLASSDIV; return idDiv; }
-    [^\.\n]*                        { yylval.stringValue = strdup(yytext+1); BEGIN INITIAL; return idDiv; }
+    [\#][^\.]*/\.                   { 
+                                        yylval.stringValue = strdup(yytext+1); 
+                                        
+                                        BEGIN CLASSDIV; 
+                                        return idDiv; 
+                                    }
+    [^\.\n]*                        { 
+                                        yylval.stringValue = strdup(yytext+1); 
+                                        BEGIN INITIAL; 
+                                        return idDiv;
+                                    }
 }
 
     /* Start Condition para extrair o valor da Class. */

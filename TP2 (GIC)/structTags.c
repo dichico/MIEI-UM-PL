@@ -4,7 +4,7 @@
 
 #include "structTags.h"
 
-// Linked List Initialization Function
+// Função de Inicialização da Lista Ligada.
 Tags *init()
 {
 
@@ -14,23 +14,24 @@ Tags *init()
     return listTags;
 }
 
-// Insert New Tag into the Linked List
+// Função de Inserção na Lista Ligada.
+// Inserção feita no início da Lista.
 Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces)
 {
     Tags *newList = malloc(sizeof(struct tags));
 
-    // Empty Linked List
+    // Lista Ligada vazia.
     if (listTags == NULL)
     {
         newList->numberSpaces = numberSpaces;
-        newList->name = nameTag;
+        newList->closingTag = nameTag;
         newList->next = NULL;
     }
-    // Otherwise
+    // Lista Ligada não vazia.
     else
     {
         newList->numberSpaces = numberSpaces;
-        newList->name = nameTag;
+        newList->closingTag = nameTag;
         newList->next = listTags;
     }
 
@@ -39,11 +40,14 @@ Tags *insertTag(Tags *listTags, char *nameTag, int numberSpaces)
     return listTags;
 }
 
+// Função de remoção do primeiro elemento da Lista Ligada.
+// Usada para as Self Closing Tags.
 Tags *removeFirstTag(Tags *listTags){
     return listTags->next;
 }
 
-Tags *removeLastTag(Tags *listTags, int numberSpaces)
+// Função de remoção das Tags que já fecharam fechadas no HTML em si e já não são precisas.
+Tags *removeClosedTags(Tags *listTags, int numberSpaces)
 {
 
     if (listTags->next == NULL)
@@ -76,6 +80,7 @@ Tags *removeLastTag(Tags *listTags, int numberSpaces)
     }
 }
 
+// Função para devolver a Opening Tag com as devidas Closed Tags, caso seja preciso fechar alguma(s) Tag(s).
 char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
 {
     char *newTag;
@@ -90,13 +95,13 @@ char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
 
         if (numberSpaces <= newList->numberSpaces)
         {
-            newTag = strdup(newList->name);
+            newTag = strdup(newList->closingTag);
             newList = newList->next;
 
             while (newList && numberSpaces <= newList->numberSpaces)
             {
                 strcat(newTag, "\n");
-                strcat(newTag, strdup(newList->name));
+                strcat(newTag, strdup(newList->closingTag));
                 newList = newList->next;
             }
 
@@ -112,27 +117,27 @@ char *newInitialTag(Tags *listTags, char *initialTag, int numberSpaces)
     }
 }
 
-// Print all Tags into the Linked List
-// Formated Text
-void printFinalTags(Tags *listTags)
+// Função de impressão das Tags que existem na Lista Ligada.
+// Texto formatado para aparecer com as devidas mudanças de linha em termos de HTML.
+void printFinalClosingTags(Tags *listTags)
 {
     printf("\n");
 
     while (listTags)
     {
-        printf("%s\n", listTags->name);
+        printf("%s\n", listTags->closingTag);
         listTags = listTags->next;
     }
 }
 
-// Print all Tags into the Linked List
+// Função de impressão usada para testes ao longo do projeto.
 void printTags(Tags *listTags)
 {
 
     while (listTags)
     {
 
-        printf("Tag Name: %s\n", listTags->name);
+        printf("Tag Name: %s\n", listTags->closingTag);
         printf("Number Spaces: %i\n", listTags->numberSpaces);
 
         listTags = listTags->next;

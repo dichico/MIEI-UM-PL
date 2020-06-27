@@ -1,10 +1,11 @@
 %{
+    #define _GNU_SOURCE
+
     #include <stdio.h>
     #include <string.h>
 
     #include "funcoesAux.c"
     #include "funcoesAux.h"
-
     #include "structTags.h"
 
     extern int yylex();
@@ -14,9 +15,9 @@
     int yyerror();
 
     int numberSpaces = 0;
-    char *initialTag;
-    char *finalTag;
-    char *initialTagWithClosesTag;
+    char *openingTagWSpaces;
+    char *closingTagWSpaces;
+    char *openingTagWClosedTags;
     char *tagDiv;
 
     Tags *listTags;
@@ -27,7 +28,10 @@
 }
 
 // Apenas são Tokens os Símbolos Terminais (Variáveis e Não Variáveis)
-%token beginTag contentTag contentPipedTag beginDiv idDiv classDiv nameAttribute valueAttribute
+%token beginTag contentTag 
+%token contentPipedTag
+%token beginDiv idDiv classDiv 
+%token nameAttribute valueAttribute
 
 %type <stringValue> ContentPugFile
 %type <stringValue> Tags Tag TagDefault TagAttribute TagSelfClosing TagPiped TagDiv
@@ -38,7 +42,7 @@
 
 FicheiroPug         :   ContentPugFile                                  {
                                                                             printf("%s", $1);
-                                                                            printFinalTags(listTags);
+                                                                            printFinalClosingTags(listTags);
                                                                         }
                     ;
 
@@ -57,179 +61,187 @@ Tag                 :   TagDefault                                      { asprin
                     ;
 
 TagDefault          :   beginTag                                        { 
+                                                                            // Verificar se consiste numa Tag 'img', 'meta' ou 'link'.
+                                                                            // Estas Tags são assim tratadas como Self Closing.
                                                                             if(isAutoSelfClosing($1) == 1){
                                                                                 numberSpaces = countInitialSpaces($1);
-                                                                                initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                                openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                                listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                                initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                                listTags = removeLastTag(listTags, numberSpaces);
+                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                                listTags = removeClosedTags(listTags, numberSpaces);
                                                                                 listTags = removeFirstTag(listTags);
                                                                                 
-                                                                                asprintf(&$$, "%s />", initialTagWithClosesTag); 
+                                                                                asprintf(&$$, "%s />", openingTagWClosedTags); 
                                                                             }
+
+                                                                            // Caso contrário, trata-se como uma Tag normal.
                                                                             else{
                                                                                 numberSpaces = countInitialSpaces($1);
-                                                                                initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
-                                                                                finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
+                                                                                openingTagWSpaces = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                                closingTagWSpaces = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                                 
-                                                                                listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                                initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                                listTags = removeLastTag(listTags, numberSpaces);
+                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                                listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                                asprintf(&$$, "%s", initialTagWithClosesTag);
+                                                                                asprintf(&$$, "%s", openingTagWClosedTags);
                                                                             }
                                                                         }   
                     |   beginTag contentTag                             { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $2);
+                                                                            asprintf(&$$, "%s%s", openingTagWClosedTags, $2);
                                                                         }
                     |   beginTag '=' contentTag                         {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces($1, 0, 2, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces); 
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces); 
                                                                             
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $3); 
+                                                                            asprintf(&$$, "%s%s", openingTagWClosedTags, $3); 
                                                                         }
                     ;
 
 TagAttribute        :   beginTag AttributeHandler                       {
+                                                                            // Verificar se consiste numa Tag 'img', 'meta' ou 'link'.
+                                                                            // Estas Tags são assim tratadas como Self Closing.
                                                                             if(isAutoSelfClosing($1) == 1){
                                                                                 numberSpaces = countInitialSpaces($1);
-                                                                                initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                                openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                                listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                                initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                                listTags = removeLastTag(listTags, numberSpaces);
+                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                                listTags = removeClosedTags(listTags, numberSpaces);
                                                                                 listTags = removeFirstTag(listTags);
 
-                                                                                asprintf(&$$, "%s %s />", initialTagWithClosesTag, $2); 
+                                                                                asprintf(&$$, "%s %s />", openingTagWClosedTags, $2); 
                                                                             }
+
+                                                                            // Caso contrário, trata-se como uma Tag normal.
                                                                             else{ 
                                                                                 numberSpaces = countInitialSpaces($1);
-                                                                                initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
-                                                                                finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
+                                                                                openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                                closingTagWSpaces = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                                 
-                                                                                listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                                initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                                listTags = removeLastTag(listTags, numberSpaces);
+                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                                listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                                asprintf(&$$, "%s %s>", initialTagWithClosesTag, $2);
+                                                                                asprintf(&$$, "%s %s>", openingTagWClosedTags, $2);
                                                                             }
                                                                         }   
                     |   beginTag AttributeHandler contentTag            { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             
-                                                                            asprintf(&$$, "%s %s>%s", initialTagWithClosesTag, $2, $3); 
+                                                                            asprintf(&$$, "%s %s>%s", openingTagWClosedTags, $2, $3); 
                                                                         }
                     |   beginTag AttributeHandler '=' contentTag        { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces($1, 0, 3, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s %s>%s", initialTagWithClosesTag, $2, $4); 
+                                                                            asprintf(&$$, "%s %s>%s", openingTagWClosedTags, $2, $4); 
                                                                         }
                     ;
 
 TagSelfClosing      :   beginTag '/'                                    { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 4, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s", initialTagWithClosesTag); 
+                                                                            asprintf(&$$, "%s", openingTagWClosedTags); 
                                                                         }
                     |   beginTag '/' contentTag                         {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 4, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $3);                     
+                                                                            asprintf(&$$, "%s%s", openingTagWClosedTags, $3);                     
                                                                         }
                     |   beginTag '/' '=' contentTag                     { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 4, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 4, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $4);                         
+                                                                            asprintf(&$$, "%s%s", openingTagWClosedTags, $4);                         
                                                                         }
                     |   beginTag AttributeHandler '/'                   {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s %s />", initialTagWithClosesTag, $2); 
+                                                                            asprintf(&$$, "%s %s />", openingTagWClosedTags, $2); 
                                                                         }
                     |   beginTag AttributeHandler '/' contentTag        {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s %s />%s", initialTagWithClosesTag, $2, $4); 
+                                                                            asprintf(&$$, "%s %s />%s", openingTagWClosedTags, $2, $4); 
                                                                         }
                     |   beginTag AttributeHandler '/' '=' contentTag    {
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
                                                                             listTags = removeFirstTag(listTags);
                                                                             
-                                                                            asprintf(&$$, "%s %s />%s", initialTagWithClosesTag, $2, $5); 
+                                                                            asprintf(&$$, "%s %s />%s", openingTagWClosedTags, $2, $5); 
                                                                         }
                     ;
 
 TagPiped            :   beginTag contentPipedTag                        { 
                                                                             numberSpaces = countInitialSpaces($1);
-                                                                            initialTag = tagWithSpaces($1, 1, 2, numberSpaces);
-                                                                            finalTag = tagWithSpaces($1, 0, 2, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces($1, 1, 2, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces($1, 0, 2, numberSpaces);
 
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s%s", initialTagWithClosesTag, $2); 
+                                                                            asprintf(&$$, "%s%s", openingTagWClosedTags, $2); 
                                                                         }
                     ;
 
@@ -238,42 +250,42 @@ TagDiv              : beginDiv idDiv classDiv                           {
                                                                             strcat(tagDiv, "div");
 
                                                                             numberSpaces = countInitialSpaces(tagDiv);
-                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
-                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s id=\"%s\" class=\"%s\">", initialTagWithClosesTag, $2, $3);                                                                            
+                                                                            asprintf(&$$, "%s id=\"%s\" class=\"%s\">", openingTagWClosedTags, $2, $3);                                                                            
                                                                         }
                     |   beginDiv idDiv                                  { 
                                                                             tagDiv = strdup($1);
                                                                             strcat(tagDiv, "div");
 
                                                                             numberSpaces = countInitialSpaces(tagDiv);
-                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
-                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s id=\"%s\">", initialTagWithClosesTag, $2);                                                                           
+                                                                            asprintf(&$$, "%s id=\"%s\">", openingTagWClosedTags, $2);                                                                           
                                                                         }
                     |   beginDiv classDiv                               {
                                                                             tagDiv = strdup($1);
                                                                             strcat(tagDiv, "div");
 
                                                                             numberSpaces = countInitialSpaces(tagDiv);
-                                                                            initialTag = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
-                                                                            finalTag = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
+                                                                            openingTagWSpaces = tagWithSpaces(tagDiv, 1, 3, numberSpaces);
+                                                                            closingTagWSpaces = tagWithSpaces(tagDiv, 0, 3, numberSpaces);
                                                                             
-                                                                            listTags = insertTag(listTags, finalTag, numberSpaces);
-                                                                            initialTagWithClosesTag = newInitialTag(listTags, initialTag, numberSpaces);
-                                                                            listTags = removeLastTag(listTags, numberSpaces);
+                                                                            listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                            openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
+                                                                            listTags = removeClosedTags(listTags, numberSpaces);
 
-                                                                            asprintf(&$$, "%s class=\"%s\">", initialTagWithClosesTag, $2);
+                                                                            asprintf(&$$, "%s class=\"%s\">", openingTagWClosedTags, $2);
                                                                         }
                     ;
 
@@ -281,7 +293,6 @@ AttributeHandler    :   '(' Attributes ')'                              { asprin
                     ;
 
 Attributes          :   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
-                    |   Attributes Attribute                            { asprintf(&$$, "%s %s", $1, $2); }
                     |   Attribute                                       { asprintf(&$$, "%s", $1); }   
                     ;
 
