@@ -67,7 +67,7 @@ TagDefault          :   beginTag                                        {
                                                                                 numberSpaces = countInitialSpaces($1);
                                                                                 openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                listTags = insertTag(listTags, openingTagWClosedTags, numberSpaces);
                                                                                 openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
                                                                                 listTags = removeClosedTags(listTags, numberSpaces);
                                                                                 listTags = removeFirstTag(listTags);
@@ -119,7 +119,7 @@ TagAttribute        :   beginTag AttributeHandler                       {
                                                                                 numberSpaces = countInitialSpaces($1);
                                                                                 openingTagWSpaces = tagWithSpaces($1, 1, 3, numberSpaces);
 
-                                                                                listTags = insertTag(listTags, closingTagWSpaces, numberSpaces);
+                                                                                listTags = insertTag(listTags, openingTagWClosedTags, numberSpaces);
                                                                                 openingTagWClosedTags = newInitialTag(listTags, openingTagWSpaces, numberSpaces);
                                                                                 listTags = removeClosedTags(listTags, numberSpaces);
                                                                                 listTags = removeFirstTag(listTags);
