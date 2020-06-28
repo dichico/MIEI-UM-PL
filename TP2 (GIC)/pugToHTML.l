@@ -50,8 +50,8 @@
     /* Expressões Regulares para começar a extração do valor do Id e da Class de qualquer Div. */
     /* Primeira expressão para quando o div possui um Id. */
     /* Segunda expressão para quando o div não possui um Id. */
-^[ ]*/\#                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN IDENTIFIERDIV; return beginDiv; }
-^[ ]*/\.                        { classDivText = (char*) malloc(100); yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
+^[ ]*/\#                        { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN IDENTIFIERDIV; return beginDiv; }
+^[ ]*/\.                        { classDivText = (char*) malloc(100); sizeClassDivText = 100; yylval.stringValue = strdup(yytext); BEGIN CLASSDIV; return beginDiv; }
 
     /* Start Condition para extrair o Conteúdo que está entre aspas seguido do caracter '=' e um espaço. */
     /* Assume-se que possam ser as plicas e as aspas normais. */
